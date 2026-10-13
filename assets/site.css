@@ -26,7 +26,7 @@ li > strong:first-child{font:600 .88em var(--mono)}
 .home pre::before{content:"[" counter(cell) "]";color:var(--dim);margin-right:10px}
 .home .highlighter-rouge + ul{list-style:none;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:0 14px;border-left:3px solid var(--rule);margin:8px 0 26px;padding:8px 0 4px 14px;font:14px/1.6 var(--code)}
 .home .highlighter-rouge + ul li{display:contents}
-.home .highlighter-rouge + ul strong{color:var(--accent);font-weight:400;white-space:nowrap}
+.home .highlighter-rouge + ul strong{font:inherit;color:var(--accent);white-space:nowrap}
 .home .highlighter-rouge + ul strong::after{content:" =>"}
 /* Phones: value goes on its own line under the key, long links wrap */
 @media (max-width:560px){
