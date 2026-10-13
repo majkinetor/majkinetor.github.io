@@ -28,3 +28,11 @@ li > strong:first-child{font:600 .88em var(--mono)}
 .home .highlighter-rouge + ul li{display:contents}
 .home .highlighter-rouge + ul strong{color:var(--accent);font-weight:400;white-space:nowrap}
 .home .highlighter-rouge + ul strong::after{content:" =>"}
+/* Phones: value goes on its own line under the key, long links wrap */
+@media (max-width:560px){
+  .home h1{font-size:27px}
+  .home pre,.home .highlighter-rouge + ul{font-size:13px}
+  .home .highlighter-rouge + ul{display:block;overflow-wrap:anywhere}
+  .home .highlighter-rouge + ul li{display:block;padding-left:2ch;margin:0 0 6px}
+  .home .highlighter-rouge + ul strong{display:block;margin-left:-2ch}
+}
