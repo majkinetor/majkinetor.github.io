@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Miodrag Milić</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,700;1,7..72,400&family=Fira+Code:wght@400;600&display=swap">
+<style>
+/* Layout: an interactive notebook. Prose cells explain, code cells query projects.json, outputs render the timeline. */
+nav{font:13px var(--code);color:var(--dim);margin-bottom:22px} nav a{color:var(--dim)}
+:root{
+  --bg:#fdfdfd; --cell:#f2f3f5; --ink:#1d1f24; --dim:#6a6f7a; --rule:#e2e4e8; --accent:#a3123a; --str:#2f7d32; --sym:#7c3aed; --out:#ffffff;
+  --gov:#2f6fd6; --private:#d9541c; --foss:#16924a;
+  --serif:"Literata",Georgia,serif; --code:"Fira Code",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#15161a;--cell:#1e2026;--ink:#e7e8ec;--dim:#959aa6;--rule:#2b2e36;--accent:#ff6b8f;--str:#7ed37f;--sym:#b99cff;--out:#191a1f;--gov:#5b93f0;--private:#f07a45;--foss:#3cc173;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15161a;--cell:#1e2026;--ink:#e7e8ec;--dim:#959aa6;--rule:#2b2e36;--accent:#ff6b8f;--str:#7ed37f;--sym:#b99cff;--out:#191a1f;--gov:#5b93f0;--private:#f07a45;--foss:#3cc173;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.65 var(--serif)}
+.wrap{max-width:780px;margin:0 auto;padding:48px 16px 90px}
+a{color:var(--accent)}
+h1{font:700 clamp(30px,5vw,42px)/1.15 var(--serif);margin:0 0 10px;text-wrap:balance}
+p{margin:0 0 14px;max-width:62ch}
+.cell{margin:18px 0 26px}
+.in{display:flex;gap:10px;align-items:center;background:var(--cell);border-radius:8px;padding:10px 12px;font:14px var(--code)}
+.in .pr{color:var(--dim);user-select:none;white-space:nowrap}
+.in input{flex:1;min-width:0;font:inherit;background:transparent;border:0;color:var(--ink);outline:none}
+.in button{font:600 12px var(--code);background:var(--accent);color:#fff;border:0;border-radius:5px;padding:5px 10px;cursor:pointer}
+.in button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.ex{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font:12.5px var(--code)}
+.ex button{font:inherit;background:none;border:0;padding:0;color:var(--dim);cursor:pointer;text-decoration:underline dotted}
+.ex button:hover{color:var(--accent)}
+.out{border-left:3px solid var(--rule);padding:10px 0 4px 14px;margin-top:8px;font:14px var(--code);overflow-x:auto}
+.out .pr{color:var(--dim)}
+.out .num{color:var(--sym);font-weight:600}
+.out .err{color:var(--accent)}
+.kv{display:grid;grid-template-columns:max-content max-content;gap:0 18px}
+.kv span:nth-child(odd){color:var(--sym)}
+.hbar{display:grid;grid-template-columns:7ch minmax(0,1fr) 3ch;gap:4px 10px;align-items:center}
+.hbar i{display:block;height:12px;border-radius:2px}
+.pf-graph{position:relative;padding-left:var(--gutter,100px);font-family:var(--serif)}
+.pf-svg{position:absolute;left:0;top:0;overflow:visible}
+.r{padding:3px 0 3px 10px;font-size:15px;line-height:1.35}
+.r a{color:var(--ink);font-weight:700;text-decoration:none}
+.r a:hover{color:var(--accent)}
+.r small{font:12px var(--code);color:var(--dim);margin-left:8px}
+.r .s{display:block;color:var(--dim);font-size:13.5px}
+.yr{font:600 12px var(--code);color:var(--dim);padding:10px 0 0 10px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav><a href="../">milic.info</a> / projects</nav>
+  <h1>Projects, a notebook</h1>
+  <p>This page is a small notebook over <a href="projects.json">projects.json</a>, the file that also drives the rest of the site. Each grey line is a query you can edit and run. The language is a tiny Ruby-flavoured chain: start from <code>projects</code>, narrow it, then ask for something.</p>
+
+  <div class="cell" data-q="projects.stats"></div>
+  <p>Most of the work was for the Serbian state: Treasury, Ministry of Finance, Customs, eGovernment. Open source ran next to it the whole time.</p>
+  <div class="cell" data-q="projects.group_by(:client)"></div>
+  <p>Here is the whole career as a timeline. Each line is a project from its start (the dot) to its end. Change the query to filter it, or try one of the examples.</p>
+  <div class="cell" data-q="projects.featured.timeline" data-ex='["projects.timeline","projects.where(kind: :gov).timeline","projects.where(carrier: :oss).timeline","projects.grep(\"vue\").timeline","projects.since(2019).timeline","projects.running.map(:title)"]'></div>
+</div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+PF.load().then(D => {
+  // projects.where(kind: :gov).grep("x").since(2019).featured.running . stats | count | timeline | group_by(:client) | map(:title)
+  const run = src => {
+    const m = src.trim().match(/^projects((?:\.\w+(?:\([^)]*\))?)*)$/)
+    if (!m) throw new Error('queries start with `projects` and chain methods, e.g. projects.running.count')
+    let list = D.projects
+    const calls = [...m[1].matchAll(/\.(\w+)(?:\(([^)]*)\))?/g)].map(x => [x[1], (x[2] || '').trim()])
+    for (const [fn, arg] of calls) {
+      const sym = arg.replace(/^:/, '').replace(/^["']|["']$/g, '')
+      switch (fn) {
+        case 'where': { const [, k, v] = arg.match(/(\w+):\s*:?["']?(\w+)/) || []
+          if (k === 'kind') list = list.filter(p => p._kind === v)
+          else if (k === 'carrier') list = list.filter(p => p.carrier === v)
+          else if (k === 'client') list = list.filter(p => p.client.includes(v))
+          else throw new Error(`where() knows kind:, carrier: and client:`); break }
+        case 'grep': list = list.filter(p => JSON.stringify([p.title, p.subtitle, p.summary, p.tech]).toLowerCase().includes(sym.toLowerCase())); break
+        case 'since': list = list.filter(p => p._e > +sym); break
+        case 'featured': list = list.filter(p => p.featured); break
+        case 'running': list = list.filter(p => p._ongoing); break
+        case 'count': return h('span',{class:'num'}, list.length)
+        case 'stats': { const s = PF.stats(list)
+          return h('div',{class:'kv'}, ...[['total',s.total],['running',s.ongoing],['years',s.years],['peak_parallel',`${s.peak.n} (${s.peak.year})`],['institutions',s.institutions],['project_years',s.projectYears]].flatMap(([k,v]) => [h('span',{},':'+k+' =>'), h('span',{},v)])) }
+        case 'map': return h('div',{}, '[', list.map(p => h('span',{style:{color:'var(--str)'}}, `"${p[sym] ?? ''}"`)).reduce((a, x, i) => (i ? a.push(', ', x) : a.push(x), a), []), ']')
+        case 'group_by': { const groups = {}
+          if (sym === 'client') list.forEach(p => groups[p._kind] = (groups[p._kind] || 0) + 1)
+          else list.forEach(p => groups[p.carrier] = (groups[p.carrier] || 0) + 1)
+          const max = Math.max(...Object.values(groups))
+          return h('div',{class:'hbar'}, ...Object.entries(groups).sort((a,b)=>b[1]-a[1]).flatMap(([k, n]) => [h('span',{style:{color:'var(--sym)'}}, ':' + k), h('i',{style:{width:n/max*100+'%', background: D.kinds[k] ? `var(--${k})` : 'var(--dim)'}}), h('span',{}, n)])) }
+        case 'timeline': { const out = h('div')
+          if (!list.length) return h('span',{class:'pr'}, '[]')
+          PF.rowGraph(out, list, { laneW: 10, minLaneW: 5, pad: 4, anchor: 12, top: 0, maxFrac: .3,
+            year: y => h('div',{class:'yr'}, y),
+            row: p => h('div',{class:'r'}, h('a',{href:PF.url(p)}, p.title), h('small',{}, PF.range(p)), h('span',{class:'s'}, p.subtitle)),
+            draw: (s, p, g) => {
+              const c = `var(--${p._kind})`
+              s.append(svg('line',{x1:g.x,x2:g.x,y1:g.y0,y2:g.y1,stroke:c,'stroke-width':Math.max(2, g.lw*.4),'stroke-linecap':'round'}))
+              s.append(svg('circle',{cx:g.x,cy:g.y1,r:3.5,fill:c}))
+            } })
+          return out }
+        default: throw new Error(`unknown method .${fn}`)
+      }
+    }
+    return h('span',{}, `#<Projects ${list.length}>`)
+  }
+  document.querySelectorAll('.cell').forEach((cell, i) => {
+    const input = h('input',{id:'q' + i, value: cell.dataset.q, spellcheck:'false', 'aria-label':'Query'})
+    const out = h('div',{class:'out'})
+    const go = () => { try { out.replaceChildren(h('span',{class:'pr'}, '=> '), run(input.value)) } catch (e) { out.replaceChildren(h('span',{class:'err'}, e.message)) } }
+    input.addEventListener('keydown', e => e.key === 'Enter' && go())
+    cell.append(h('div',{class:'in'}, h('span',{class:'pr'}, `[${i + 1}]`), input, h('button',{type:'button',onclick:go}, 'Run')))
+    if (cell.dataset.ex) cell.append(h('div',{class:'ex'}, ...JSON.parse(cell.dataset.ex).map(q => h('button',{type:'button',onclick:()=>{ input.value = q; go() }}, q))))
+    cell.append(out); go()
+  })
+})
+</script>
+</body>
+</html>
