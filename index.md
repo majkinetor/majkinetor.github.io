@@ -4,9 +4,22 @@ class: home
 ---
 # Miodrag Milić
 
-Software architect · automation · open source
+A small notebook over the person behind [the projects](/projects/).
 
-- [~/about](/about/)
-- [~/projects](/projects/)
-- [~/musicbrainz](/musicbrainz-userscripts)
-- [github.com/majkinetor](https://github.com/majkinetor)
+```
+milic.whoami
+```
+
+- **:role** "software architect"
+- **:since** 2000
+- **:city** "Belgrade"
+- **:likes** ["automation", "open source", "long-lived services"]
+
+```
+milic.links
+```
+
+- **:about** [/about](/about/)
+- **:projects** [/projects](/projects/)
+- **:musicbrainz** [/musicbrainz-userscripts](/musicbrainz-userscripts)
+- **:github** [majkinetor](https://github.com/majkinetor)
