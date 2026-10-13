@@ -6,7 +6,7 @@
 <title>About · Miodrag Milić</title>
 <script src="../theme.js"></script>
 <style>
-/* Layout: one reading column in the home page's mono style. Intro, career table, open source, contact. */
+/* Layout: one reading column in the home page's mono style. Intro, career table, open source, contact, profiles. */
 :root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --rule:#e3e5e8; --accent:#2f6fd6;
   --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--rule:#23292e;--accent:#6ea8ff;color-scheme:dark}}
@@ -25,6 +25,7 @@ ol li{display:grid;grid-template-columns:11ch minmax(0,1fr);gap:0 14px;padding:8
 ol li span{color:var(--dim);font-variant-numeric:tabular-nums}
 ol li small{display:block;color:var(--dim);font-size:13.5px}
 ul{padding-left:2ch;margin:0 0 14px} ul li{margin:4px 0}
+.where{margin:0 0 8px} .where b{color:var(--dim);font-weight:600} .where a{white-space:nowrap}
 @media (max-width:480px){ol li{grid-template-columns:1fr}}
 </style>
 </head>
@@ -59,9 +60,13 @@ ul{padding-left:2ch;margin:0 0 14px} ul li{margin:4px 0}
   <h2>Contact</h2>
   <ul>
     <li>miodrag AT milic.info</li>
-    <li><a href="https://github.com/majkinetor">github.com/majkinetor</a></li>
     <li><a href="../projects/">All projects</a>, as an interactive notebook</li>
   </ul>
+
+  <h2>Where else to find me</h2>
+  <p class="where"><b>Code:</b> <a rel="me" href="https://github.com/majkinetor">GitHub</a> · <a rel="me" href="https://gitlab.com/majkinetor">GitLab</a> · <a rel="me" href="https://stackoverflow.com/users/82660/majkinetor">Stack Overflow</a> · <a rel="me" href="https://www.powershellgallery.com/profiles/majkinetor">PowerShell Gallery</a> · <a rel="me" href="https://chocolatey.org/profiles/majkinetor">Chocolatey</a> · <a rel="me" href="https://hub.docker.com/u/majkinetor">Docker Hub</a></p>
+  <p class="where"><b>Music:</b> <a rel="me" href="https://musicbrainz.org/user/majkinetor">MusicBrainz</a> · <a rel="me" href="https://listenbrainz.org/user/majkinetor">ListenBrainz</a> · <a rel="me" href="https://soundcloud.com/majkinetor">SoundCloud</a> · <a rel="me" href="https://bandcamp.com/majkinetor">Bandcamp</a></p>
+  <p class="where"><b>Elsewhere:</b> <a rel="me" href="https://www.linkedin.com/in/majkinetor">LinkedIn</a> · <a rel="me" href="https://news.ycombinator.com/user?id=majkinetor">Hacker News</a> · <a rel="me" href="https://www.reddit.com/user/majkinetor">Reddit</a> · <a rel="me" href="https://lobste.rs/u/majkinetor">Lobsters</a> · <a rel="me" href="https://twitter.com/majkinetor">Twitter</a></p>
 </main>
 </body>
 </html>
