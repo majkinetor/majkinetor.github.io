@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Spacecurve</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;800&family=Red+Hat+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: 26 years folded into a Hilbert curve up top, then one chapter per year with a slice of the "river" of parallel work. */
+:root{
+  --bg:#f4f5f8; --card:#ffffff; --ink:#151823; --dim:#5f6578; --rule:#dfe2ea; --empty:#e6e8ee;
+  --gov:#2f6fd6; --private:#d9541c; --foss:#16924a;
+  --display:"Red Hat Display",ui-sans-serif,system-ui,sans-serif; --mono:"Red Hat Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0d0f15;--card:#151925;--ink:#e6e9f2;--dim:#8d94a8;--rule:#232838;--empty:#1a1f2c;--gov:#5b93f0;--private:#f07a45;--foss:#3cc173;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d0f15;--card:#151925;--ink:#e6e9f2;--dim:#8d94a8;--rule:#232838;--empty:#1a1f2c;--gov:#5b93f0;--private:#f07a45;--foss:#3cc173;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--display)}
+.wrap{max-width:1000px;margin:0 auto;padding:36px 16px 80px}
+a{color:inherit}
+.hero{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,360px);gap:28px;align-items:center}
+@media (max-width:760px){.hero{grid-template-columns:1fr}}
+h1{font:800 clamp(30px,5vw,48px)/1.02 var(--display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.lede{color:var(--dim);margin:12px 0 18px;max-width:52ch}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px 18px}
+.stats b{display:block;font:600 26px/1 var(--mono);font-variant-numeric:tabular-nums}
+.stats span{font:12px var(--mono);color:var(--dim)}
+.curve{position:relative;width:100%;max-width:360px;aspect-ratio:1;justify-self:center}
+.curve canvas{width:100%;height:100%;display:block;border-radius:6px;cursor:crosshair}
+.tip{font:12px var(--mono);color:var(--dim);margin-top:8px;min-height:3em}
+.legend{display:flex;gap:14px;font:12px var(--mono);color:var(--dim);flex-wrap:wrap;margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:34px 0 18px}
+.pf-group{display:flex;gap:6px;flex-wrap:wrap}
+.pf-chip{font:600 13px var(--mono);background:var(--card);border:1px solid var(--rule);color:var(--ink);border-radius:6px;padding:4px 10px;cursor:pointer}
+.pf-chip .pf-n{color:var(--dim);margin-left:6px;font-weight:400}
+.pf-chip.on{background:var(--c);border-color:var(--c);color:#fff}.pf-chip.on .pf-n{color:#fff}
+.year{display:grid;grid-template-columns:72px 64px minmax(0,1fr);gap:0 16px;border-top:1px solid var(--rule)}
+.year .y{font:600 15px var(--mono);padding-top:12px;color:var(--dim);position:sticky;top:env(safe-area-inset-top,0px);align-self:start}
+.year .river{position:relative}
+.year .river svg{position:absolute;inset:0;width:100%;height:100%}
+.year .list{padding:10px 0 14px;display:flex;flex-direction:column;gap:8px}
+.year .also{font:12.5px var(--mono);color:var(--dim);background:none;border:0;padding:0;text-align:left;cursor:pointer}
+.year .also:hover{color:var(--ink)}
+.year .also-list{font:12.5px var(--mono);color:var(--dim)}
+.p{background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:10px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px}
+.p .t{font-weight:800;text-decoration:none}
+.p .t:hover{text-decoration:underline}
+.p .d{font:12px var(--mono);color:var(--dim);white-space:nowrap}
+.p .s{grid-column:1/-1;color:var(--dim);font-size:14px}
+.p .k{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+@media (max-width:560px){.year{grid-template-columns:44px 30px minmax(0,1fr);gap:0 10px}.year .y{font-size:12px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <div>
+      <h1>Every month since 2000, on one curve.</h1>
+      <p class="lede">The square on the right is my career folded along a Hilbert curve: each cell is about ten days, brighter means more projects running at once. Hover it to scrub through time. Below, every year has its own chapter.</p>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div>
+      <div class="curve"><canvas id="cv" width="640" height="640" aria-label="Hilbert curve of concurrent projects over time"></canvas></div>
+      <div class="legend"><span><i style="background:var(--gov)"></i>government</span><span><i style="background:var(--private)"></i>private</span><span><i style="background:var(--foss)"></i>open source</span></div>
+      <div class="tip" id="tip">Start: top-left (2000). End: top-right (now).</div>
+    </div>
+  </section>
+  <div class="filters" id="filters"></div>
+  <div id="years"></div>
+</div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+// Hilbert index -> (x, y), standard iterative form
+function d2xy(n, d) { let x = 0, y = 0, t = d
+  for (let s = 1; s < n; s *= 2) { const rx = 1 & (t / 2), ry = 1 & (t ^ rx)
+    if (ry === 0) { if (rx === 1) { x = s - 1 - x; y = s - 1 - y } [x, y] = [y, x] }
+    x += s * rx; y += s * ry; t = Math.floor(t / 4) }
+  return [x, y] }
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim()
+PF.load().then(D => {
+  const N = 32, cells = N * N, span = D.now - D.min, cv = document.getElementById('cv'), ctx = cv.getContext('2d')
+  const tOf = i => D.min + (i + .5) / cells * span
+  let list = D.projects
+  const paint = () => {
+    const S = cv.width / N, peak = Math.max(1, ...Array.from({length: cells}, (_, i) => PF.active(list, tOf(i)).length))
+    ctx.clearRect(0, 0, cv.width, cv.height)
+    let prev = null
+    for (let i = 0; i < cells; i++) {
+      const [x, y] = d2xy(N, i), act = PF.active(list, tOf(i))
+      const k = ['gov','private','foss'].map(k => [k, act.filter(p => p._kind === k).length]).sort((a, b) => b[1] - a[1])[0]
+      ctx.fillStyle = css('--empty'); ctx.fillRect(x*S + 1, y*S + 1, S - 2, S - 2)
+      if (act.length) { ctx.globalAlpha = .18 + .82 * act.length / peak; ctx.fillStyle = css('--' + k[0]); ctx.fillRect(x*S + 1, y*S + 1, S - 2, S - 2); ctx.globalAlpha = 1 }
+      if (prev) { ctx.strokeStyle = css('--ink'); ctx.globalAlpha = .18; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(prev[0], prev[1]); ctx.lineTo(x*S + S/2, y*S + S/2); ctx.stroke(); ctx.globalAlpha = 1 }
+      prev = [x*S + S/2, y*S + S/2]
+    }
+  }
+  const cellAt = e => { const r = cv.getBoundingClientRect(), x = Math.floor((e.clientX - r.left) / r.width * N), y = Math.floor((e.clientY - r.top) / r.height * N)
+    for (let i = 0; i < cells; i++) { const [a, b] = d2xy(N, i); if (a === x && b === y) return i } }
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  cv.addEventListener('mousemove', e => { const i = cellAt(e); if (i == null) return; const t = tOf(i), act = PF.active(list, t)
+    document.getElementById('tip').textContent = `${months[Math.floor((t % 1) * 12)]} ${Math.floor(t)} · ${act.length} running: ${act.map(p => p.title).join(', ') || 'none'}` })
+  cv.addEventListener('click', e => { const i = cellAt(e); if (i != null) document.getElementById('y' + Math.floor(tOf(i)))?.scrollIntoView({behavior:'smooth'}) })
+
+  const years = () => {
+    const host = document.getElementById('years'); host.replaceChildren()
+    const peak = Math.max(1, ...PF.series(list).map(x => x.n))
+    for (let y = Math.floor(D.now); y >= D.min; y--) {
+      const starts = list.filter(p => Math.floor(p._s) === y).sort((a, b) => b._s - a._s)
+      const running = list.filter(p => p._s < y && p._e > y)
+      // river slice: 12 monthly rows, stacked by kind, centred
+      const r = svg('svg',{viewBox:'0 0 100 120',preserveAspectRatio:'none'})
+      for (let m = 11; m >= 0; m--) {
+        const t = y + m / 12, act = PF.active(list, t)
+        if (t > D.now) continue
+        let x = 50 - act.length / peak * 50
+        for (const k of ['gov','private','foss']) { const w = act.filter(p => p._kind === k).length / peak * 100
+          r.append(svg('rect',{x, y:(11 - m) * 10, width:w, height:10.4, fill:`var(--${k})`, opacity:.85})); x += w }
+      }
+      const alsoList = h('div',{class:'also-list', hidden:true}, running.map(p => p.title).join(' · '))
+      host.append(h('section',{class:'year', id:'y' + y},
+        h('div',{class:'y'}, y), h('div',{class:'river'}, r),
+        h('div',{class:'list'},
+          ...starts.map(p => h('article',{class:'p'},
+            h('a',{class:'t',href:PF.url(p)}, h('span',{class:'k',style:{background:`var(--${p._kind})`}}), p.title),
+            h('span',{class:'d'}, `${PF.range(p)} · ${PF.dur(p)}`),
+            h('div',{class:'s'}, p.summary))),
+          running.length ? h('button',{class:'also',type:'button',onclick:()=>alsoList.hidden = !alsoList.hidden}, `+ ${running.length} already running`) : '',
+          alsoList)))
+    }
+  }
+  const stats = () => { const s = PF.stats(list)
+    document.getElementById('stats').replaceChildren(...[[s.total,'projects'],[s.ongoing,'running now'],[s.peak.n,`peak, ${s.peak.year}`],[s.institutions,'institutions'],[s.projectYears,'project-years'],[s.years,'years']]
+      .map(([n, l]) => h('div',{}, h('b',{},n), h('span',{},l)))) }
+  const render = l => { list = l; stats(); paint(); years() }
+  PF.chips(document.getElementById('filters'), render)
+  render(D.projects)
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change', paint)
+})
+</script>
+</body>
+</html>

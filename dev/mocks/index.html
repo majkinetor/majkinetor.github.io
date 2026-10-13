@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Projects Timeline Mocks</title>
+<style>
+/* Layout: a plain index of ten timeline prototypes, all rendered from the same projects.json. */
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --rule:#e3e5e8; --accent:#2f6fd6;
+  --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--rule:#23292e;--accent:#6ea8ff;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--rule:#23292e;--accent:#6ea8ff;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--sans)}
+.wrap{max-width:760px;margin:0 auto;padding:40px 16px 70px}
+a{color:var(--accent)}
+nav{font:13px var(--mono);color:var(--dim)} nav a{color:var(--dim)}
+h1{font-size:30px;line-height:1.15;margin:18px 0 6px;text-wrap:balance}
+p{color:var(--dim);margin:0 0 22px;max-width:62ch}
+ol{list-style:none;padding:0;margin:0;border-top:1px solid var(--rule)}
+li{border-bottom:1px solid var(--rule)}
+li a{display:grid;grid-template-columns:3ch minmax(0,1fr);gap:4px 14px;padding:14px 4px;text-decoration:none;color:var(--ink)}
+li a:hover b{color:var(--accent)}
+li span:first-child{font:13px/1.9 var(--mono);color:var(--dim);grid-row:span 2}
+li b{font-size:17px}
+li small{color:var(--dim);font-size:14px;grid-column:2}
+.foot{font:13px var(--mono);color:var(--dim);margin-top:26px}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <nav>milic.info / projects</nav>
+  <h1>Projects: ten timeline prototypes</h1>
+  <p>All ten read the same <a href="projects.json">projects.json</a> and link to the same <a href="project.html#idp">project page</a>. Pick a direction, then we'll turn it into the real page.</p>
+  <ol>
+    <li><a href="01-metro.html"><span>01</span><b>Transit map</b><small>Each project is a subway line, each start a station. Dashed track means development, solid means production.</small></a></li>
+    <li><a href="02-gitlog.html"><span>02</span><b>git log --graph</b><small>The career as a commit graph. Branches are projects, tags mark go-live, flags filter.</small></a></li>
+    <li><a href="03-editorial.html"><span>03</span><b>Editorial</b><small>Magazine layout with giant outlined years and hairline threads. Featured work is set large, the rest stays one line.</small></a></li>
+    <li><a href="04-swimlanes.html"><span>04</span><b>Swimlanes by company</b><small>True-scale vertical Gantt chart, one column per company that carried the work.</small></a></li>
+    <li><a href="05-htop.html"><span>05</span><b>htop</b><small>A process table with meters and a load histogram. Keyboard driven: j/k, Enter, F3, F4, F6.</small></a></li>
+    <li><a href="06-blueprint.html"><span>06</span><b>Blueprint</b><small>An engineering drawing at true scale, with leader-line labels and a title block for the stats.</small></a></li>
+    <li><a href="07-rfc.html"><span>07</span><b>RFC 2026</b><small>A plain-text RFC with an ASCII lane graph. Nothing a 1990 terminal could not print.</small></a></li>
+    <li><a href="08-spacecurve.html"><span>08</span><b>Spacecurve</b><small>26 years folded into a Hilbert curve, then one chapter per year with a slice of the river of parallel work.</small></a></li>
+    <li><a href="09-logic.html"><span>09</span><b>Logic analyzer</b><small>Channels are lanes, a high signal is a running project, a clock is development, decoder boxes carry the names.</small></a></li>
+    <li><a href="10-notebook.html"><span>10</span><b>Notebook</b><small>Editable query cells over the JSON, like an interactive tutorial. The timeline is one of the outputs.</small></a></li>
+  </ol>
+  <p class="foot">Plain HTML, CSS and one 200-line script. No build step and no framework.</p>
+</div>
+</body>
+</html>

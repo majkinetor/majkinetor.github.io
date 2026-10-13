@@ -32,6 +32,20 @@ address given in `permalink:` (for example `permalink: /name/`).
 - `theme.js`: light/dark switch, used by every page
 - `projects/`: the projects notebook, plain HTML over `projects.json`
 
+## Edit projects
+
+Open `dev/editor.html` in Chrome or Edge (double-click the file), press **Open…** and
+pick `projects/projects.json`. Edit in the form; **Save** (or Ctrl+S) writes the file
+back in place. Other browsers: use **Download copy** and replace the file. Unsaved
+edits are kept as a draft in the browser until you save.
+
+The editor keeps the file's layout (one project block per entry), so git diffs stay small.
+
+## Mocks
+
+`dev/mocks/` holds the design prototypes (timeline styles and home page layouts).
+`dev/` is excluded from the site build, so none of it is published.
+
 ## Preview locally (optional)
 
 ```sh

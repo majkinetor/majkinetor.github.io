@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Logic Analyzer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Chivo+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: a logic analyzer capture rotated 90°. Channels are lanes, a high signal is a running project,
+   a clocking signal is development, decoder boxes carry the names. Single dark theme by design. */
+:root{
+  --bg:#07090a; --panel:#0e1213; --grid:#16201f; --trace:#4dffb8; --clock:#ffd23f; --ann:#123a33; --annb:#2c8f7a; --txt:#cde7e0; --dim:#5e7a74; --cur:#ff4d6d;
+  --lcd:"Share Tech Mono",ui-monospace,monospace; --mono:"Chivo Mono",ui-monospace,monospace; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--txt);font:13px/1.45 var(--mono)}
+.wrap{max-width:1200px;margin:0 auto;padding:22px 16px 160px}
+a{color:var(--trace)}
+.bar{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;background:var(--panel);border:1px solid var(--grid);border-radius:6px;padding:10px 14px}
+.bar h1{font:400 20px var(--lcd);margin:0;color:var(--trace);letter-spacing:.06em}
+.ro{display:flex;flex-wrap:wrap;gap:6px 16px;font:14px var(--lcd);color:var(--dim)}
+.ro b{color:var(--txt);font-weight:400}
+.hint{color:var(--dim);margin:10px 2px}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.pf-group{display:flex;gap:6px;flex-wrap:wrap}
+.pf-chip{font:13px var(--lcd);background:var(--panel);border:1px solid var(--grid);color:var(--dim);padding:3px 10px;border-radius:3px;cursor:pointer}
+.pf-chip.on{color:var(--bg);background:var(--trace);border-color:var(--trace)}
+.pf-chip .pf-n{margin-left:6px;opacity:.7}
+.scope{overflow-x:auto;background:var(--panel);border:1px solid var(--grid);border-radius:6px;position:relative}
+svg{display:block}
+svg text{font-family:var(--lcd)}
+.ann{cursor:pointer}
+.ann:hover rect,.ann.on rect{fill:#1c5a4e;stroke:var(--trace)}
+.dec{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(720px,calc(100% - 24px));background:var(--panel);
+  border:1px solid var(--annb);border-radius:6px;padding:10px 14px;font-size:13px;z-index:4}
+.dec .t{font:20px var(--lcd);color:var(--trace);text-decoration:none}
+.dec .m{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <h1>CAPTURE: majkinetor 2000→2026</h1>
+    <div class="ro" id="ro"></div>
+  </div>
+  <p class="hint">Sample rate 1/month. Hover the capture to place the cursor; click a decoder box to decode it.</p>
+  <div class="filters" id="filters"></div>
+  <div class="scope" id="scope"></div>
+</div>
+<div class="dec" id="dec"><span class="m">DECODER: no frame selected</span></div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+const PX = 64, CW = 40, RL = 64, TOP = 34
+PF.load().then(D => {
+  const scope = document.getElementById('scope'), dec = document.getElementById('dec')
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+  const render = list => {
+    const s = PF.stats(list), n = PF.lanes(list, .1)
+    document.getElementById('ro').replaceChildren(...[['CH', n],['FRAMES', s.total],['ACTIVE', s.ongoing],['PEAK', `${s.peak.n}@${s.peak.year}`],['INST', s.institutions]].map(([k,v]) => h('span',{}, k, ' ', h('b',{},v))))
+    const W = RL + n * CW + 10, H = TOP + (D.now - D.min) * PX + 20
+    const y = t => TOP + (D.now - t) * PX
+    const g = svg('svg',{width:W, height:H, viewBox:`0 0 ${W} ${H}`})
+    // grid + ruler
+    for (let yr = Math.floor(D.now); yr >= D.min; yr--) {
+      g.append(svg('line',{x1:RL - 6,x2:W,y1:y(yr),y2:y(yr),stroke:'var(--grid)'}))
+      const t = svg('text',{x:RL - 10,y:y(yr) + 4,'text-anchor':'end','font-size':12,fill:'var(--dim)'}); t.textContent = yr; g.append(t)
+    }
+    for (let l = 0; l < n; l++) {
+      const x0 = RL + l * CW
+      g.append(svg('line',{x1:x0,x2:x0,y1:TOP - 8,y2:H,stroke:'var(--grid)'}))
+      const t = svg('text',{x:x0 + CW/2,y:TOP - 14,'text-anchor':'middle','font-size':11,fill:'var(--dim)'}); t.textContent = 'D' + l; g.append(t)
+      const lo = x0 + 5, hi = x0 + 15
+      const items = list.filter(p => p._lane === l).sort((a, b) => b._e - a._e)
+      let d = `M${lo} ${TOP}`
+      for (const p of items) {
+        const ye = y(p._e), ys = y(p._s), yl = p._live ? y(p._live) : ys
+        d += ` V${ye} H${hi} V${yl}`
+        // development: a clock between live and start
+        if (p._live) { let c = yl, up = true; while (c < ys - 3) { c = Math.min(ys, c + 3); d += ` V${c} H${up ? lo + 3 : hi}`; up = !up } d += ` H${hi}` }
+        d += ` V${ys} H${lo}`
+        // decoder annotation
+        const a = svg('g',{class:'ann',tabindex:0,role:'button'})
+        a.append(svg('rect',{x:x0 + 19,y:ye + 1,width:CW - 22,height:Math.max(6, ys - ye - 2),rx:3,fill:'var(--ann)',stroke:'var(--annb)','stroke-width':1}))
+        if (ys - ye > 30) { const tt = svg('text',{x:0,y:0,'font-size':11,fill:'var(--txt)',transform:`translate(${x0 + 33} ${ye + 6}) rotate(90)`}); tt.textContent = p.title.length * 6.4 > ys - ye - 10 ? p.title.slice(0, Math.max(2, Math.floor((ys - ye - 10) / 6.4))) + '…' : p.title; a.append(tt) }
+        a.addEventListener('click', () => { g.querySelectorAll('.ann.on').forEach(e => e.classList.remove('on')); a.classList.add('on')
+          dec.replaceChildren(h('a',{class:'t',href:PF.url(p)}, `${p.title} →`), h('div',{class:'m'}, `D${l} · ${PF.range(p)} · ${PF.dur(p)} · ${PF.clients(p)}${p.live ? ' · live ' + p.live : ''}`), h('div',{}, p.summary)) })
+        g.append(a)
+      }
+      d += ` V${H}`
+      g.append(svg('path',{d,stroke:'var(--trace)','stroke-width':1.5,fill:'none'}))
+    }
+    // overpaint clocks in yellow so development is visible at a glance
+    for (const p of list) if (p._live) {
+      const x0 = RL + p._lane * CW, lo = x0 + 5, hi = x0 + 15, yl = y(p._live), ys = y(p._s)
+      let c = yl, up = true, d = `M${hi} ${yl}`
+      while (c < ys - 3) { c = Math.min(ys, c + 3); d += ` V${c} H${up ? lo + 3 : hi}`; up = !up }
+      g.append(svg('path',{d,stroke:'var(--clock)','stroke-width':1.5,fill:'none'}))
+    }
+    // cursor
+    const cur = svg('line',{x1:RL - 6,x2:W,y1:-10,y2:-10,stroke:'var(--cur)','stroke-dasharray':'4 3'})
+    const ct = svg('text',{x:RL + 4,y:-10,'font-size':12,fill:'var(--cur)'})
+    g.append(cur, ct)
+    g.addEventListener('mousemove', e => {
+      const r = g.getBoundingClientRect(), yy = e.clientY - r.top, t = D.now - (yy - TOP) / PX
+      if (t < D.min || t > D.now) return
+      cur.setAttribute('y1', yy); cur.setAttribute('y2', yy); ct.setAttribute('y', yy - 4)
+      ct.textContent = `${months[Math.floor((t % 1) * 12)]} ${Math.floor(t)} · ${PF.active(list, t).length} high`
+    })
+    scope.replaceChildren(g)
+  }
+  PF.chips(document.getElementById('filters'), render, {carriers:false})
+  render(D.projects)
+})
+</script>
+</body>
+</html>

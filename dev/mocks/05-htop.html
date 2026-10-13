@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · htop</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: the career as an htop session. Meters on top, one process per project, newest first. Single dark theme by design. */
+:root{
+  --bg:#0b0d0e; --fg:#d7dadc; --dim:#6b7378; --green:#5fd75f; --cyan:#5fd7d7; --blue:#5f87ff; --red:#ff5f5f; --yellow:#ffd75f; --mag:#d787ff; --sel:#005f87;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--fg);font:13px/1.45 var(--mono)}
+.term{max-width:1180px;margin:0 auto;padding:18px 16px 70px}
+a{color:var(--cyan)}
+.meters{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:2px 32px;margin-bottom:10px}
+.mt{display:flex;gap:6px;white-space:nowrap}
+.mt .k{color:var(--cyan);width:7ch}
+.mt .bar{flex:1;min-width:0;overflow:hidden}
+.mt .bar i{font-style:normal}
+.mt .v{color:var(--dim)}
+.txt b{color:var(--cyan);font-weight:400} .txt em{color:var(--fg);font-style:normal;font-weight:600}
+.hist{margin:8px 0 12px;display:flex;align-items:flex-end;gap:2px;height:46px}
+.hist div{flex:1;background:var(--green);min-height:1px;position:relative;opacity:.85}
+.hist div.peak{background:var(--yellow)}
+.hist div:hover::after{content:attr(data-l);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--sel);padding:0 4px;white-space:nowrap;z-index:2}
+.axis{display:flex;justify-content:space-between;color:var(--dim);margin-top:-8px;margin-bottom:12px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:980px}
+th{background:var(--green);color:#000;text-align:left;font-weight:600;padding:0 6px;white-space:nowrap;cursor:pointer}
+th.sort{background:var(--cyan)}
+td{padding:0 6px;white-space:nowrap;vertical-align:top}
+tr.p{cursor:pointer}
+tr.p:hover td{background:#1a2024}
+tr.p.sel td{background:var(--sel);color:#fff}
+td.n{text-align:right;color:var(--dim)} td.u{color:var(--fg)}
+.S-R{color:var(--green);font-weight:600} .S-S{color:var(--dim)}
+.cmd b{font-weight:600;color:var(--fg)} .cmd span{color:var(--dim)}
+tr.p.sel .cmd span{color:#cfe}
+.tl{letter-spacing:-.5px}
+.tl .d{color:var(--yellow)} .tl .r{color:var(--green)} .tl .o{color:#25303a}
+.k-gov{color:var(--blue)} .k-private{color:var(--red)} .k-foss{color:var(--green)}
+tr.info td{white-space:normal;color:var(--fg);background:#11171b;padding:6px 6px 10px 3ch}
+tr.info .lbl{color:var(--cyan)}
+.fkeys{position:fixed;left:0;right:0;bottom:0;padding-bottom:env(safe-area-inset-bottom,0px);background:var(--bg);display:flex;flex-wrap:wrap;font:13px var(--mono);z-index:3}
+.fkeys button{font:inherit;background:none;border:0;color:#000;padding:0;cursor:pointer;display:flex}
+.fkeys b{color:var(--fg);font-weight:400;padding:0 0 0 1ch} .fkeys span{background:var(--cyan);padding:0 3ch 0 0}
+.fkeys button:focus-visible span{background:var(--yellow)}
+.search{color:var(--yellow);margin:4px 0}
+.search input{font:inherit;background:transparent;border:0;color:var(--fg);outline:none;width:30ch;border-bottom:1px solid var(--dim)}
+</style>
+</head>
+<body>
+<div class="term">
+  <div class="meters" id="meters"></div>
+  <div class="hist" id="hist"></div>
+  <div class="axis" id="axis"></div>
+  <div class="search" id="search" hidden>Search: <input id="q" aria-label="Search projects"></div>
+  <div class="tbl"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div>
+</div>
+<div class="fkeys" id="fkeys"></div>
+<script src="pf.js"></script>
+<script>
+const {h} = PF
+const KINDS = ['gov','private','foss']
+let kindFilter = null, sortKey = 'START', sel = null, open = null
+PF.load().then(D => {
+  const Y0 = D.min, Y1 = Math.floor(D.now)
+  const blocks = (n, max, w, c) => { const k = Math.round(n / max * w); return [h('i',{style:{color:c}}, '|'.repeat(k)), ' '.repeat(Math.max(0, w - k))] }
+  const list = () => PF.filtered().filter(p => !kindFilter || p._kind === kindFilter)
+  const meters = () => {
+    const all = D.projects, s = PF.stats(list())
+    const nowN = PF.active(all, D.now - .01).length, five = PF.series(all, 1).slice(-5).map(x=>x.n)
+    const m = (k, n, max, c, label) => h('div',{class:'mt'}, h('span',{class:'k'}, k), '[', h('span',{class:'bar'}, ...blocks(n, max, 26, c)), h('span',{class:'v'}, label ?? `${n}/${max}`), ']')
+    document.getElementById('meters').replaceChildren(
+      m('gov', s.gov, s.total, 'var(--blue)'), h('div',{class:'mt txt'}, h('b',{},'Projects: '), h('em',{}, s.total), ', ', h('em',{}, s.ongoing), ' running, ', h('em',{}, s.institutions), ' institutions'),
+      m('private', s.private, s.total, 'var(--red)'), h('div',{class:'mt txt'}, h('b',{},'Load average: '), h('em',{}, nowN), ' ', five.reverse().slice(0,3).join(' '), h('span',{style:{color:'var(--dim)'}}, '  (now, last years)')),
+      m('foss', s.foss, s.total, 'var(--green)'), h('div',{class:'mt txt'}, h('b',{},'Uptime: '), h('em',{}, `${s.years} years`), `, since ${s.since}, peak `, h('em',{}, s.peak.n), ` in ${s.peak.year}`))
+    const ser = PF.series(list(), 1/4), max = Math.max(...ser.map(x=>x.n))
+    document.getElementById('hist').replaceChildren(...ser.map(x => h('div',{class: x.n === max ? 'peak' : '', style:{height: (x.n/max*100)+'%'}, 'data-l': `${Math.floor(x.t)} Q${Math.round((x.t%1)*4)+1}: ${x.n}`})))
+    document.getElementById('axis').replaceChildren(...[Y0, Y0+5, Y0+10, Y0+15, Y0+20, Y1].map(y => h('span',{}, y)))
+  }
+  const COLS = [['PID'],['USER'],['CLIENT'],['S'],['START'],['TIME+'],[`${Y0} ─ TIMELINE ─ ${Y1}`],['Command']]
+  const timeline = p => [...Array(Y1 - Y0 + 1)].map((_, i) => {
+    const t = Y0 + i + .5, on = p._s < Y0 + i + 1 && p._e > Y0 + i
+    const dev = on && p._live && t < p._live
+    return h('span',{class: !on ? 'o' : dev ? 'd' : 'r'}, !on ? '·' : dev ? '▒' : '█')
+  })
+  const sorters = { START: (a,b) => b._s - a._s, 'TIME+': (a,b) => (b._e-b._s) - (a._e-a._s), Command: (a,b) => a.title.localeCompare(b.title), USER: (a,b) => a.carrier.localeCompare(b.carrier) }
+  const table = () => {
+    document.getElementById('th').replaceChildren(h('tr',{}, ...COLS.map(([c]) => h('th',{class: c === sortKey ? 'sort' : '', onclick: () => { if (sorters[c]) { sortKey = c; table() } }}, c))))
+    const rows = list().sort(sorters[sortKey])
+    const tb = document.getElementById('tb'); tb.replaceChildren()
+    rows.forEach((p, i) => {
+      const tr = h('tr',{class:'p' + (sel === p.id ? ' sel' : ''), tabindex:0, onclick: () => { sel = p.id; open = open === p.id ? null : p.id; table() }},
+        h('td',{class:'n'}, 1000 + D.projects.indexOf(p) * 37 % 9000),
+        h('td',{class:'u'}, p.carrier),
+        h('td',{class:'k-' + p._kind}, (p._clients[0]?.short || '').slice(0,10)),
+        h('td',{class: p._ongoing ? 'S-R' : 'S-S'}, p._ongoing ? 'R' : 'S'),
+        h('td',{class:'n'}, p.start),
+        h('td',{class:'n'}, PF.dur(p)),
+        h('td',{class:'tl'}, ...timeline(p)),
+        h('td',{class:'cmd'}, h('b',{}, p.title), ' ', h('span',{}, `--${p.subtitle.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}`)))
+      tb.append(tr)
+      if (open === p.id) tb.append(h('tr',{class:'info'}, h('td',{colspan:8},
+        p.summary, h('br'),
+        h('span',{class:'lbl'}, 'clients: '), p._clients.map(c=>c.name).join(', '), '   ', h('span',{class:'lbl'}, 'roles: '), (p.roles||[]).join(', '), h('br'),
+        h('span',{class:'lbl'}, 'stack: '), (p.tech||[]).join(' '), (p.metrics||[]).length ? ['   ', h('span',{class:'lbl'}, 'stats: '), p.metrics.join(' · ')] : '', h('br'),
+        h('a',{href:PF.url(p)}, `cat /proc/${p.id}/README →`))))
+    })
+  }
+  const redraw = () => { meters(); table() }
+  const q = document.getElementById('q')
+  q.addEventListener('input', () => { PF.F.q = q.value; redraw() })
+  const keys = [['F1','Help',()=>alert],['F3','Search',()=>{ const s=document.getElementById('search'); s.hidden=!s.hidden; if(!s.hidden) q.focus() }],
+    ['F4','Filter',()=>{ kindFilter = KINDS[(KINDS.indexOf(kindFilter)+1+1) % (KINDS.length+1) - 1] ?? null; redraw(); fk() }],
+    ['F6','SortBy',()=>{ const k=Object.keys(sorters); sortKey=k[(k.indexOf(sortKey)+1)%k.length]; table() }],
+    ['F10','Quit',()=>{ location.href='../../' }]]
+  const fk = () => document.getElementById('fkeys').replaceChildren(...keys.filter(k=>k[0]!=='F1').map(([k,l,f]) => h('button',{type:'button',onclick:f}, h('b',{},k), h('span',{}, k==='F4' && kindFilter ? `${l}:${kindFilter}` : l))))
+  fk()
+  addEventListener('keydown', e => {
+    if (e.target === q && e.key !== 'Escape' && !e.key.startsWith('F')) return
+    const k = keys.find(x => x[0] === e.key); if (k) { e.preventDefault(); k[2]() }
+    const rows = list().sort(sorters[sortKey]), i = rows.findIndex(p => p.id === sel)
+    if (e.key === 'ArrowDown' || e.key === 'j') { sel = rows[Math.min(rows.length-1, i+1)].id; table(); e.preventDefault() }
+    if (e.key === 'ArrowUp' || e.key === 'k') { sel = rows[Math.max(0, i-1)].id; table(); e.preventDefault() }
+    if (e.key === 'Enter' && sel) { open = open === sel ? null : sel; table() }
+    if (e.key === '/') { e.preventDefault(); keys[1][2]() }
+    document.querySelector('tr.sel')?.scrollIntoView({block:'nearest'})
+  })
+  redraw()
+})
+</script>
+</body>
+</html>

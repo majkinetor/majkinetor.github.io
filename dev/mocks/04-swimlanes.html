@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Swimlanes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600&family=Barlow+Condensed:wght@500;700&display=swap">
+<style>
+/* Layout: true-scale vertical Gantt. One column per company that carried the work; time runs down. */
+:root{
+  --bg:#f3f5f7; --panel:#ffffff; --ink:#18212b; --dim:#5f6b78; --grid:#dde2e7; --era:#e7ebf0;
+  --sans:"Barlow",ui-sans-serif,system-ui,sans-serif; --cond:"Barlow Condensed","Arial Narrow",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0f1419;--panel:#171e25;--ink:#e3e9ef;--dim:#8b97a3;--grid:#222b34;--era:#151c23;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1419;--panel:#171e25;--ink:#e3e9ef;--dim:#8b97a3;--grid:#222b34;--era:#151c23;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans)}
+.wrap{max-width:1180px;margin:0 auto;padding:32px 16px 140px}
+a{color:inherit}
+h1{font:700 34px/1.1 var(--cond);margin:0;letter-spacing:.01em;text-transform:uppercase}
+.sub{color:var(--dim);margin:6px 0 22px;max-width:62ch}
+.kpi{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.kpi div{background:var(--panel);border:1px solid var(--grid);border-radius:6px;padding:8px 14px;font:500 14px var(--cond);color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.kpi b{font:700 22px var(--cond);color:var(--ink);margin-right:6px;font-variant-numeric:tabular-nums}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.pf-group{display:flex;gap:6px;flex-wrap:wrap}
+.pf-chip{font:600 13px var(--sans);background:var(--panel);border:1px solid var(--grid);border-radius:4px;padding:4px 10px;color:var(--ink);cursor:pointer;display:flex;gap:6px;align-items:center}
+.pf-chip::before{content:"";width:10px;height:10px;border-radius:2px;background:var(--c)}
+.pf-chip .pf-n{color:var(--dim);font-weight:400}
+.pf-chip.on{outline:2px solid var(--c);outline-offset:-1px}
+.scroller{overflow-x:auto;background:var(--panel);border:1px solid var(--grid);border-radius:8px}
+.chart{position:relative;min-width:720px}
+.colhead{position:sticky;top:0;z-index:3;display:grid;background:var(--panel);border-bottom:1px solid var(--grid)}
+.colhead div{font:700 13px var(--cond);text-transform:uppercase;letter-spacing:.06em;padding:10px 8px;border-left:1px solid var(--grid)}
+.colhead small{display:block;font:500 11px var(--sans);color:var(--dim);text-transform:none;letter-spacing:0}
+.body{position:relative}
+.yl{position:absolute;left:0;width:100%;border-top:1px solid var(--grid);font:500 12px var(--cond);color:var(--dim);padding-left:8px}
+.era{position:absolute;background:var(--era);border-left:1px solid var(--grid)}
+.bar{position:absolute;border-radius:4px;cursor:pointer;color:#fff;font:600 12px/1 var(--cond);writing-mode:vertical-rl;transform:rotate(180deg);
+  padding:6px 0;overflow:hidden;display:flex;align-items:center;white-space:nowrap;text-overflow:ellipsis;border:0}
+.bar.dev{background-image:repeating-linear-gradient(45deg,transparent 0 4px,rgba(255,255,255,.28) 4px 8px)}
+.bar:hover,.bar.sel{box-shadow:0 0 0 2px var(--ink);z-index:2}
+.bar:focus-visible{outline:2px solid var(--ink)}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(680px,calc(100% - 24px));background:var(--panel);
+  border:1px solid var(--grid);border-radius:10px;padding:14px 16px;box-shadow:0 10px 40px -10px rgba(0,0,0,.35);z-index:5}
+.sheet .t{font:700 22px var(--cond);text-decoration:none}
+.sheet .m{color:var(--dim);font-size:13px}
+.sheet p{margin:6px 0 0}
+.sheet .hint{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Projects by company</h1>
+  <p class="sub">To scale: one row of pixels is about five days. Columns are the companies that carried the work, shaded while I worked there. Hatched bars are in development, solid bars are in production.</p>
+  <div class="kpi" id="kpi"></div>
+  <div class="filters" id="filters"></div>
+  <div class="scroller"><div class="chart" id="chart"></div></div>
+</div>
+<div class="sheet" id="sheet"><span class="hint">Tap a bar to see the project.</span></div>
+<script src="pf.js"></script>
+<script>
+const {h} = PF
+const PX = 70 // pixels per year
+PF.load().then(D => {
+  const order = ['oss','1dev','freelance','nil','trezor','elektrika','pexim']
+  const chart = document.getElementById('chart'), sheet = document.getElementById('sheet')
+  const show = (p, el) => {
+    chart.querySelectorAll('.sel').forEach(b => b.classList.remove('sel')); el.classList.add('sel')
+    sheet.replaceChildren(h('a',{class:'t',href:PF.url(p)}, p.title, ' →'),
+      h('div',{class:'m'}, `${PF.range(p)} · ${PF.dur(p)} · ${p.subtitle} · ${PF.clients(p)}`), h('p',{}, p.summary))
+  }
+  const render = list => {
+    const s = PF.stats(list)
+    document.getElementById('kpi').replaceChildren(...[[s.total,'projects'],[s.ongoing,'running'],[s.peak.n,`peak parallel · ${s.peak.year}`],[s.institutions,'institutions'],[s.carriers,'companies']]
+      .map(([n,l]) => h('div',{}, h('b',{},n), l)))
+    const cols = order.filter(c => list.some(p => p.carrier === c)).map(c => {
+      const items = list.filter(p => p.carrier === c)
+      return { id: c, ...D.carriers[c], items, n: PF.lanes(items, .1) }
+    })
+    const LW = 22, GAP = 3, LEFT = 46
+    const widths = cols.map(c => Math.max(110, c.n * (LW + GAP) + 16))
+    const H = (D.now - D.min) * PX + 20
+    const y = t => (D.now - t) * PX + 10
+    chart.style.minWidth = LEFT + widths.reduce((a,b)=>a+b,0) + 'px'
+    const head = h('div',{class:'colhead', style:{gridTemplateColumns:`${LEFT}px ${widths.map(w=>w+'px').join(' ')}`}}, h('span'),
+      ...cols.map(c => h('div',{}, c.name, h('small',{}, `${c.items.length} projects`))))
+    const body = h('div',{class:'body', style:{height:H+'px'}})
+    for (let yr = Math.ceil(D.now); yr >= D.min; yr--) if (y(yr) >= 0) body.append(h('div',{class:'yl', style:{top:y(yr)+'px'}}, yr))
+    let x = LEFT
+    cols.forEach((c, i) => {
+      const from = PF.num(c.from), to = c.to ? PF.num(c.to, true) : D.now
+      body.append(h('div',{class:'era', style:{left:x+'px', width:widths[i]+'px', top:y(Math.min(to,D.now))+'px', height:(Math.min(to,D.now)-from)*PX+'px'}}))
+      for (const p of c.items) {
+        const top = y(p._e), live = p._live
+        const b = h('button',{type:'button',class:'bar', title:`${p.title} ${PF.range(p)}`,
+          style:{left:(x + 8 + p._lane*(LW+GAP))+'px', width:LW+'px', top:top+'px', height:Math.max(14,(p._e-p._s)*PX - 2)+'px', background:PF.color(p)},
+          onclick:() => show(p, b)}, (p._e - p._s) * PX > 40 ? p.title : '')
+        body.append(b)
+        // development part as a hatched overlay at the bottom of the bar
+        if (live) body.append(h('div',{class:'bar dev', style:{pointerEvents:'none',left:(x + 8 + p._lane*(LW+GAP))+'px', width:LW+'px', top:y(live)+'px', height:(live-p._s)*PX - 2+'px', background:'transparent'}}))
+      }
+      x += widths[i]
+    })
+    chart.replaceChildren(head, body)
+  }
+  PF.chips(document.getElementById('filters'), render, {carriers:false})
+  render(D.projects)
+})
+</script>
+</body>
+</html>

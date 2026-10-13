@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>projects.json editor</title>
+<script src="../theme.js"></script>
+<style>
+/* Layout: toolbar on top, project list on the left, form on the right. Same tokens as the site. */
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f2f3f5; --field:#ffffff;
+  --err:#c2410c; --ok:#15803d;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#272d33;--accent:#6ea8ff;--panel:#191d21;--field:#0d1013;--err:#f07a45;--ok:#3cc173;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#272d33;--accent:#6ea8ff;--panel:#191d21;--field:#0d1013;--err:#f07a45;--ok:#3cc173;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--sans);display:flex;flex-direction:column}
+button,input,select,textarea{font:inherit;color:inherit}
+button{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:5px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:600}
+button.danger:hover{border-color:var(--err);color:var(--err)}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+input[type=text],select,textarea{width:100%;background:var(--field);border:1px solid var(--rule);border-radius:6px;padding:6px 8px}
+textarea{resize:vertical;min-height:64px;font-family:var(--mono);font-size:13px}
+.bad{border-color:var(--err)!important}
+
+header{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;padding:10px 64px 10px 16px;border-bottom:1px solid var(--rule)}
+header h1{font:600 15px var(--mono);margin:0 8px 0 0}
+#status{color:var(--dim);font-size:13px;margin-left:auto}
+#status.dirty{color:var(--err)}
+nav.tabs{display:flex;gap:2px;padding:0 16px;border-bottom:1px solid var(--rule)}
+nav.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:8px 12px;color:var(--dim)}
+nav.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+
+.app{flex:1;min-height:0;display:grid;grid-template-columns:320px minmax(0,1fr)}
+aside{border-right:1px solid var(--rule);display:flex;flex-direction:column;min-height:0}
+.side-top{display:flex;gap:6px;padding:10px}
+.side-top input{flex:1}
+#list{list-style:none;margin:0;padding:0 0 20px;overflow:auto;flex:1}
+#list li{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:2px 8px;align-items:center;padding:6px 12px;cursor:pointer;border-left:3px solid transparent}
+#list li:hover{background:var(--panel)}
+#list li.sel{background:var(--panel);border-left-color:var(--accent)}
+#list i{width:9px;height:9px;border-radius:50%;display:block}
+#list b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#list small{grid-column:2;color:var(--dim);font:12px var(--mono)}
+#list .flag{grid-row:span 2;font-size:12px;color:var(--err)}
+#list .star{color:var(--accent)}
+
+main{overflow:auto;padding:18px 22px 60px;min-height:0}
+.empty{color:var(--dim);max-width:52ch;margin:10vh auto;text-align:center}
+.empty p{margin:0 0 14px}
+form{max-width:860px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px 14px}
+label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--dim);min-width:0}
+label > span{text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+label em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:400;color:var(--faint)}
+.c6{grid-column:span 6}.c4{grid-column:span 4}.c3{grid-column:span 3}.c2{grid-column:span 2}
+.check{flex-direction:row;align-items:center;gap:8px;padding-top:20px;font-size:14px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:5px}
+.chip{border-radius:99px;padding:2px 10px 2px 8px;font-size:13px;display:inline-flex;gap:6px;align-items:center;background:none}
+.chip::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--c,var(--faint));opacity:.35}
+.chip.on{border-color:var(--c,var(--accent));background:var(--panel)}
+.chip.on::before{opacity:1}
+.addrole{display:flex;gap:6px;margin-top:4px;max-width:260px}
+.form-head{grid-column:span 6;display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:2px}
+.form-head h2{font-size:20px;margin:0 auto 0 0;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strip{grid-column:span 6}
+.strip svg{width:100%;height:34px;display:block}
+.strip div{display:flex;justify-content:space-between;font:11px var(--mono);color:var(--faint)}
+.errors{grid-column:span 6;margin:0;padding:8px 12px 8px 28px;border:1px solid var(--err);border-radius:6px;color:var(--err);font-size:13px}
+.errors:empty{display:none}
+
+table{border-collapse:collapse;width:100%;max-width:1100px}
+th{text-align:left;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;padding:4px 6px}
+td{padding:3px 4px;vertical-align:top}
+td input,td select{padding:4px 6px}
+.tbl-wrap{overflow-x:auto}
+.raw textarea{min-height:60vh}
+.note{color:var(--dim);font-size:13px;max-width:70ch}
+#drop{position:fixed;inset:0;background:color-mix(in srgb,var(--accent) 18%,transparent);border:3px dashed var(--accent);display:grid;place-items:center;font:600 20px var(--sans);z-index:20}
+@media (max-width:760px){.app{grid-template-columns:1fr}aside{max-height:38vh;border-right:0;border-bottom:1px solid var(--rule)}.c4,.c3,.c2{grid-column:span 6}}
+</style>
+</head>
+<body>
+<header>
+  <h1>projects.json</h1>
+  <button id="open" class="primary" type="button">Open…</button>
+  <button id="save" type="button" disabled title="Ctrl+S">Save</button>
+  <button id="download" type="button" disabled>Download copy</button>
+  <button id="restore" type="button" hidden>Restore unsaved draft</button>
+  <span id="status">No file open</span>
+  <input id="filein" type="file" accept=".json,application/json" hidden>
+</header>
+<nav class="tabs" id="tabs" hidden>
+  <button type="button" data-tab="projects" class="on">Projects</button>
+  <button type="button" data-tab="orgs">Organizations</button>
+  <button type="button" data-tab="carriers">Carriers</button>
+  <button type="button" data-tab="raw">Meta &amp; kinds</button>
+</nav>
+<div class="app" id="app">
+  <aside id="aside" hidden>
+    <div class="side-top"><input id="q" type="text" placeholder="Filter…" aria-label="Filter projects"><button id="add" type="button" title="New project">New</button></div>
+    <ul id="list"></ul>
+  </aside>
+  <main id="main">
+    <div class="empty">
+      <p><b>Open <code>projects/projects.json</code></b> from your copy of the site to start.</p>
+      <p>In Chrome or Edge, Save writes straight back to the file. In other browsers, use Download copy and replace the file yourself.</p>
+      <p>You can also drop the file anywhere on this page.</p>
+    </div>
+  </main>
+</div>
+<div id="drop" hidden>Drop projects.json to open it</div>
+
+<script>
+// ---------- state ----------
+let D = null, handle = null, fileName = 'projects.json', dirty = false, sel = null, tab = 'projects'
+const DRAFT = 'projects-editor-draft'
+const $ = id => document.getElementById(id)
+const h = (tag, props = {}, ...kids) => {
+  const e = document.createElement(tag)
+  for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue
+    if (k === 'class') e.className = v
+    else if (k === 'style') for (const [sk, sv] of Object.entries(v)) { if (sv == null) continue; if (sk.startsWith('--')) e.style.setProperty(sk, sv); else e.style[sk] = sv }
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v)
+    else if (k === 'value') e.value = v
+    else if (k === 'checked') e.checked = v
+    else e.setAttribute(k, v === true ? '' : v)
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) e.append(c.nodeType ? c : String(c))
+  return e
+}
+
+// ---------- serializer: keeps the hand-written layout so git diffs stay small ----------
+const J = v => Array.isArray(v) ? '[' + v.map(J).join(', ') + ']'
+  : v && typeof v === 'object' ? '{ ' + Object.entries(v).map(([k, x]) => `${JSON.stringify(k)}: ${J(x)}`).join(', ') + ' }'
+  : JSON.stringify(v)
+const pad = (s, n) => s + ' '.repeat(Math.max(0, n - s.length))
+function aligned(obj) {
+  // one entry per line, values column-aligned like the original file
+  const ids = Object.keys(obj), w = Math.max(...ids.map(k => J(k).length + 1))
+  const fields = [...new Set(ids.flatMap(k => Object.keys(obj[k])))]
+  const fw = {}
+  for (const f of fields) fw[f] = Math.max(...ids.map(k => f in obj[k] ? `${J(f)}: ${J(obj[k][f])},`.length : 0))
+  return ids.map(k => {
+    const parts = fields.filter(f => f in obj[k]).map(f => `${J(f)}: ${J(obj[k][f])}`)
+    const cells = parts.map((p, i) => i < parts.length - 1 ? pad(p + ',', fw[fields.filter(f => f in obj[k])[i]] + 1) : p)
+    return `    ${pad(J(k) + ':', w)} { ${cells.join('')} }`
+  }).join(',\n')
+}
+const GROUPS = [['id', 'title', 'subtitle'], ['summary'], ['start', 'end', 'live', 'approx', 'client', 'carrier', 'partners'],
+  ['roles', 'tech', 'continues'], ['metrics', 'links', 'featured'], ['body']]
+function projectText(p) {
+  const known = GROUPS.flat(), extra = Object.keys(p).filter(k => !known.includes(k))
+  const lines = [...GROUPS, extra].map(g => g.filter(k => k in p).map(k => `${J(k)}: ${J(p[k])}`)).filter(l => l.length).map(l => l.join(', '))
+  return '    { ' + lines.join(',\n      ') + ' }'
+}
+function serialize(d) {
+  const meta = '  "meta": {\n' + Object.entries(d.meta).map(([k, v]) => `    ${J(k)}: ${J(v)}`).join(',\n') + '\n  }'
+  const rest = Object.keys(d).filter(k => !['meta', 'kinds', 'orgs', 'carriers', 'projects'].includes(k)).map(k => `  ${J(k)}: ${JSON.stringify(d[k], null, 2).replace(/\n/g, '\n  ')}`)
+  return '{\n' + [meta,
+    '  "kinds": {\n' + aligned(d.kinds) + '\n  }',
+    '  "orgs": {\n' + aligned(d.orgs) + '\n  }',
+    '  "carriers": {\n' + aligned(d.carriers) + '\n  }',
+    ...rest,
+    '  "projects": [\n' + d.projects.map(projectText).join(',\n\n') + '\n  ]'].join(',\n\n') + '\n}\n'
+}
+
+// ---------- validation ----------
+const DATE = /^\d{4}(-(0[1-9]|1[0-2]))?$/
+const num = s => { const [y, m] = String(s).split('-').map(Number); return m ? y + (m - 1) / 12 : y }
+function problems(p) {
+  const e = []
+  if (!p.id) e.push('id is required')
+  else if (!/^[a-z0-9][a-z0-9-]*$/.test(p.id)) e.push('id: use lowercase letters, digits and dashes')
+  else if (D.projects.filter(q => q.id === p.id).length > 1) e.push(`id "${p.id}" is used by another project`)
+  if (!p.title) e.push('title is required')
+  if (!p.start) e.push('start is required')
+  for (const k of ['start', 'end', 'live']) if (p[k] && !DATE.test(p[k])) e.push(`${k}: use YYYY or YYYY-MM`)
+  if (p.start && p.end && DATE.test(p.start) && DATE.test(p.end) && num(p.end) < num(p.start)) e.push('end is before start')
+  if (p.live && p.start && DATE.test(p.live) && DATE.test(p.start) && num(p.live) < num(p.start)) e.push('live is before start')
+  if (!p.client?.length) e.push('pick at least one client')
+  for (const c of [...(p.client || []), ...(p.partners || [])]) if (!D.orgs[c]) e.push(`unknown organization "${c}"`)
+  if (!D.carriers[p.carrier]) e.push('pick who carried the work')
+  if (p.continues && !D.projects.some(q => q.id === p.continues)) e.push(`continues: no project "${p.continues}"`)
+  for (const [k, u] of Object.entries(p.links || {})) if (!/^https?:\/\//.test(u)) e.push(`link "${k}" is not an http(s) address`)
+  return e
+}
+
+// ---------- load / save ----------
+function load(text, name, h0) {
+  let d
+  try { d = JSON.parse(text) } catch (err) { setStatus(`Could not read ${name}: ${err.message}`, true); return }
+  if (!Array.isArray(d.projects) || !d.orgs || !d.carriers) { setStatus(`${name} does not look like projects.json`, true); return }
+  D = d; handle = h0 || null; fileName = name; sel = D.projects[0]?.id ?? null; dirty = false
+  $('save').disabled = false; $('download').disabled = false; $('tabs').hidden = false
+  checkDraft(); render()
+  setStatus(handle ? `Opened ${name}` : `Opened ${name} · Save will ask where to write`)
+}
+async function openFile() {
+  if (dirty && !confirm('Discard unsaved changes?')) return
+  if (window.showOpenFilePicker) {
+    try {
+      const [fh] = await showOpenFilePicker({ types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] })
+      const f = await fh.getFile(); load(await f.text(), f.name, fh)
+    } catch (err) { if (err.name !== 'AbortError') setStatus(err.message, true) }
+  } else $('filein').click()
+}
+async function save() {
+  if (!D) return
+  const bad = D.projects.filter(p => problems(p).length)
+  if (bad.length && !confirm(`${bad.length} project(s) have problems (marked ! in the list). Save anyway?`)) return
+  const text = serialize(D)
+  try {
+    if (!handle && window.showSaveFilePicker) handle = await showSaveFilePicker({ suggestedName: fileName, types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] })
+    if (!handle) return download()
+    const w = await handle.createWritable(); await w.write(text); await w.close()
+    dirty = false; clearDraft(); setStatus(`Saved ${handle.name} at ${new Date().toLocaleTimeString()}`)
+  } catch (err) { if (err.name !== 'AbortError') setStatus(`Save failed: ${err.message}. Try Download copy.`, true) }
+}
+function download() {
+  const a = h('a', { href: URL.createObjectURL(new Blob([serialize(D)], { type: 'application/json' })), download: fileName })
+  a.click(); URL.revokeObjectURL(a.href)
+  dirty = false; clearDraft(); setStatus(`Downloaded ${fileName}. Replace projects/projects.json with it.`)
+}
+function setStatus(msg, isErr) { const s = $('status'); s.textContent = msg; s.className = isErr ? 'dirty' : '' }
+function touch() {
+  dirty = true; setStatus('Unsaved changes', true)
+  try { localStorage.setItem(DRAFT, JSON.stringify({ at: Date.now(), name: fileName, data: D })) } catch {}
+  renderList()
+}
+function clearDraft() { try { localStorage.removeItem(DRAFT) } catch {}; $('restore').hidden = true }
+function checkDraft() {
+  let d = null; try { d = JSON.parse(localStorage.getItem(DRAFT)) } catch {}
+  $('restore').hidden = !d
+  if (d) $('restore').textContent = `Restore unsaved draft (${new Date(d.at).toLocaleString()})`
+}
+$('restore').onclick = () => {
+  let d = null; try { d = JSON.parse(localStorage.getItem(DRAFT)) } catch {}
+  if (!d || !D) return
+  D = d.data; sel = D.projects[0]?.id; render(); touch(); $('restore').hidden = true
+}
+
+// ---------- list ----------
+const kindOf = p => D.orgs[p.client?.[0]]?.kind || 'foss'
+const years = p => `${String(p.start || '?').slice(0, 4)}–${p.end ? String(p.end).slice(0, 4) : 'now'}`
+function renderList() {
+  if (!D) return
+  const q = $('q').value.toLowerCase()
+  $('list').replaceChildren(...D.projects.filter(p => !q || JSON.stringify(p).toLowerCase().includes(q)).map(p =>
+    h('li', { class: p.id === sel ? 'sel' : '', onclick: () => { sel = p.id; render() } },
+      h('i', { style: { background: D.kinds[kindOf(p)]?.color || 'var(--faint)' } }),
+      h('b', {}, p.title || '(untitled)', p.featured ? h('span', { class: 'star' }, ' ★') : ''),
+      h('span', { class: 'flag', title: problems(p).join('\n') }, problems(p).length ? '!' : ''),
+      h('small', {}, `${years(p)} · ${p.id || 'no id'}`))))
+}
+$('q').oninput = renderList
+$('add').onclick = () => {
+  const base = 'new-project'; let id = base, i = 2
+  while (D.projects.some(p => p.id === id)) id = `${base}-${i++}`
+  D.projects.unshift({ id, title: 'New project', subtitle: '', summary: '', start: String(new Date().getFullYear()), end: null, client: [], carrier: Object.keys(D.carriers)[0], roles: [], tech: [] })
+  sel = id; touch(); render(); document.querySelector('[name=title]')?.select()
+}
+
+// ---------- project form ----------
+const lines = s => s.split('\n').map(x => x.trim()).filter(Boolean)
+function chipPicker(p, key, options, colorOf) {
+  return h('div', { class: 'chips' }, ...options.map(([v, label]) => {
+    const b = h('button', { type: 'button', class: 'chip' + ((p[key] || []).includes(v) ? ' on' : ''), style: { '--c': colorOf?.(v) }, 'aria-pressed': String((p[key] || []).includes(v)),
+      onclick: () => {
+        const cur = p[key] || [], on = cur.includes(v)
+        p[key] = on ? cur.filter(x => x !== v) : [...cur, v]
+        if (!p[key].length && key !== 'client' && key !== 'roles') delete p[key]
+        b.classList.toggle('on', !on); b.setAttribute('aria-pressed', String(!on)); touch(); refreshChecks(p)
+      } }, label)
+    return b
+  }))
+}
+function field(p, key, label, opts = {}) {
+  const set = v => { if (v === '' || v == null) { if (opts.nullable) p[key] = null; else delete p[key] } else p[key] = v; touch(); refreshChecks(p) }
+  const val = p[key] ?? ''
+  let input
+  if (opts.textarea) input = h('textarea', { name: key, rows: opts.rows || 3, value: val, oninput: e => set(e.target.value) })
+  else if (opts.select) input = h('select', { name: key, onchange: e => set(e.target.value) }, ...opts.select.map(([v, l]) => { const o = h('option', { value: v }, l); o.selected = v === (p[key] ?? ''); return o }))
+  else input = h('input', { type: 'text', name: key, value: val, placeholder: opts.ph, oninput: e => set(e.target.value.trim()) })
+  return h('label', { class: opts.cls || 'c6' }, h('span', {}, label, opts.hint ? h('em', {}, ' · ' + opts.hint) : ''), input)
+}
+function listField(p, key, label, hint, cls, sep) {
+  const val = (p[key] || []).join(sep === ',' ? ', ' : '\n')
+  const set = v => { const arr = sep === ',' ? v.split(',').map(x => x.trim()).filter(Boolean) : lines(v); if (arr.length) p[key] = arr; else delete p[key]; touch() }
+  const input = sep === ',' ? h('input', { type: 'text', name: key, value: val, oninput: e => set(e.target.value) }) : h('textarea', { name: key, rows: 3, value: val, oninput: e => set(e.target.value) })
+  return h('label', { class: cls }, h('span', {}, label, h('em', {}, ' · ' + hint)), input)
+}
+function linksField(p) {
+  const val = Object.entries(p.links || {}).map(([k, u]) => `${k} = ${u}`).join('\n')
+  return h('label', { class: 'c3' }, h('span', {}, 'Links', h('em', {}, ' · name = https://… per line')),
+    h('textarea', { name: 'links', rows: 3, value: val, oninput: e => {
+      const o = {}; for (const l of lines(e.target.value)) { const i = l.indexOf('='); if (i > 0) o[l.slice(0, i).trim()] = l.slice(i + 1).trim() }
+      if (Object.keys(o).length) p.links = o; else delete p.links; touch(); refreshChecks(p) } }))
+}
+function check(p, key, label) {
+  return h('label', { class: 'c2 check' }, h('input', { type: 'checkbox', name: key, checked: !!p[key], onchange: e => { if (e.target.checked) p[key] = true; else delete p[key]; touch() } }), label)
+}
+function strip(p) {
+  // career strip: every project as a thin bar, this one highlighted
+  const all = D.projects.filter(q => DATE.test(q.start || ''))
+  const asOf = D.meta?.asOf && DATE.test(D.meta.asOf) ? num(D.meta.asOf) + 1 / 12 : new Date().getFullYear() + 1
+  const min = Math.floor(Math.min(...all.map(q => num(q.start)))), W = 800, H = 34
+  const x = t => (t - min) / (asOf - min) * W
+  const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg')
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('preserveAspectRatio', 'none')
+  const bar = (q, y, hgt, fill, op) => { const r = document.createElementNS(ns, 'rect'); const s = num(q.start), e = q.end && DATE.test(q.end) ? num(q.end) + (q.end.length === 4 ? 1 : 1 / 12) : asOf
+    Object.entries({ x: x(s), y, width: Math.max(2, x(Math.min(e, asOf)) - x(s)), height: hgt, fill, opacity: op }).forEach(([k, v]) => r.setAttribute(k, v)); svg.append(r) }
+  all.forEach((q, i) => bar(q, 2 + (i % 8) * 3, 2, 'var(--faint)', .6))
+  if (DATE.test(p.start || '')) bar(p, 0, H, D.kinds[kindOf(p)]?.color || 'var(--accent)', .35)
+  return h('div', { class: 'strip' }, svg, h('div', {}, h('span', {}, min), h('span', {}, 'where this project sits in the whole career'), h('span', {}, Math.floor(asOf))))
+}
+function refreshChecks(p) {
+  const e = problems(p), ul = document.querySelector('.errors')
+  if (ul) ul.replaceChildren(...e.map(x => h('li', {}, x)))
+  const t = document.querySelector('.form-head h2'); if (t) t.textContent = p.title || '(untitled)'
+  for (const k of ['id', 'start', 'end', 'live']) document.querySelector(`[name=${k}]`)?.classList.toggle('bad', e.some(x => x.startsWith(k) || (k === 'id' && x.includes('id'))))
+  const s = document.querySelector('.strip'); if (s) s.replaceWith(strip(p))
+}
+function projectForm() {
+  const p = D.projects.find(q => q.id === sel)
+  if (!p) return h('div', { class: 'empty' }, h('p', {}, 'Pick a project on the left, or press New.'))
+  const orgOpts = Object.entries(D.orgs).map(([k, o]) => [k, o.short || o.name])
+  const orgColor = k => D.kinds[D.orgs[k]?.kind]?.color
+  const roles = [...new Set(D.projects.flatMap(q => q.roles || []))].sort()
+  const roleIn = h('input', { type: 'text', placeholder: 'new role', 'aria-label': 'New role' })
+  const idx = D.projects.indexOf(p)
+  const move = d => { const j = idx + d; if (j < 0 || j >= D.projects.length) return; D.projects.splice(idx, 1); D.projects.splice(j, 0, p); touch(); render() }
+  const form = h('form', { onsubmit: e => e.preventDefault() },
+    h('div', { class: 'form-head' }, h('h2', {}, p.title || '(untitled)'),
+      h('button', { type: 'button', title: 'Move up in the file', onclick: () => move(-1) }, '↑'),
+      h('button', { type: 'button', title: 'Move down in the file', onclick: () => move(1) }, '↓'),
+      h('button', { type: 'button', onclick: () => { const c = structuredClone(p); c.id = p.id + '-copy'; c.title = p.title + ' (copy)'; D.projects.splice(idx, 0, c); sel = c.id; touch(); render() } }, 'Duplicate'),
+      h('button', { type: 'button', class: 'danger', onclick: () => { if (!confirm(`Delete "${p.title}"?`)) return; D.projects.splice(idx, 1); sel = D.projects[Math.min(idx, D.projects.length - 1)]?.id; touch(); render() } }, 'Delete')),
+    h('ul', { class: 'errors' }),
+    strip(p),
+    field(p, 'title', 'Title', { cls: 'c3' }),
+    field(p, 'id', 'Id', { cls: 'c3', hint: 'used in links: project.html#id' }),
+    field(p, 'subtitle', 'Subtitle'),
+    field(p, 'summary', 'Summary', { textarea: true, rows: 2, hint: 'one or two sentences' }),
+    field(p, 'start', 'Start', { cls: 'c2', ph: 'YYYY or YYYY-MM' }),
+    field(p, 'end', 'End', { cls: 'c2', ph: 'empty = ongoing', nullable: true }),
+    field(p, 'live', 'Live', { cls: 'c2', ph: 'went to production', hint: 'optional' }),
+    h('label', { class: 'c6' }, h('span', {}, 'Client'), chipPicker(p, 'client', orgOpts, orgColor)),
+    field(p, 'carrier', 'Carried by', { cls: 'c3', select: Object.entries(D.carriers).map(([k, c]) => [k, c.name]) }),
+    field(p, 'continues', 'Continues', { cls: 'c3', select: [['', '(none)'], ...D.projects.filter(q => q !== p).map(q => [q.id, `${q.title} · ${years(q)}`])] }),
+    h('label', { class: 'c6' }, h('span', {}, 'Partners', h('em', {}, ' · optional')), chipPicker(p, 'partners', orgOpts, orgColor)),
+    h('label', { class: 'c6' }, h('span', {}, 'Roles'), chipPicker(p, 'roles', roles.map(r => [r, r])),
+      h('div', { class: 'addrole' }, roleIn, h('button', { type: 'button', onclick: () => { const r = roleIn.value.trim(); if (!r) return; p.roles = [...new Set([...(p.roles || []), r])]; touch(); render() } }, 'Add'))),
+    listField(p, 'tech', 'Tech', 'comma separated', 'c6', ','),
+    listField(p, 'metrics', 'Metrics', 'one per line', 'c3', '\n'),
+    linksField(p),
+    field(p, 'body', 'Body', { textarea: true, rows: 7, hint: 'Markdown, shown on the project page' }),
+    check(p, 'featured', 'Featured'), check(p, 'approx', 'Dates approximate'))
+  setTimeout(() => refreshChecks(p))
+  return form
+}
+
+// ---------- organizations / carriers tables ----------
+function table(key, cols) {
+  const obj = D[key]
+  const rename = (oldId, newId) => {
+    if (!newId || newId === oldId || obj[newId]) return false
+    D[key] = Object.fromEntries(Object.entries(obj).map(([k, v]) => [k === oldId ? newId : k, v]))
+    for (const p of D.projects) {
+      if (key === 'orgs') for (const f of ['client', 'partners']) if (p[f]) p[f] = p[f].map(x => x === oldId ? newId : x)
+      if (key === 'carriers' && p.carrier === oldId) p.carrier = newId
+    }
+    touch(); return true
+  }
+  const used = id => D.projects.filter(p => key === 'orgs' ? [...(p.client || []), ...(p.partners || [])].includes(id) : p.carrier === id).length
+  const rows = Object.entries(obj).map(([id, o]) => h('tr', {},
+    h('td', {}, h('input', { type: 'text', value: id, 'aria-label': 'id', onchange: e => { if (!rename(id, e.target.value.trim())) e.target.value = id; else render() } })),
+    ...cols.map(([f, , opts]) => h('td', {}, opts
+      ? h('select', { 'aria-label': f, onchange: e => { o[f] = e.target.value; touch() } }, ...opts().map(v => { const op = h('option', { value: v }, v); op.selected = o[f] === v; return op }))
+      : h('input', { type: 'text', value: o[f] ?? '', 'aria-label': f, oninput: e => { const v = e.target.value.trim(); if (v === '') { if (f === 'to') o[f] = null; else delete o[f] } else o[f] = v; touch() } }))),
+    h('td', { style: { color: 'var(--dim)', whiteSpace: 'nowrap' } }, `${used(id)} projects`),
+    h('td', {}, h('button', { type: 'button', class: 'danger', disabled: used(id) > 0, title: used(id) ? 'Still used by projects' : 'Delete', onclick: () => { delete D[key][id]; touch(); render() } }, 'Delete'))))
+  const add = h('button', { type: 'button', onclick: () => { let id = 'new', i = 2; while (obj[id]) id = 'new' + i++; obj[id] = key === 'orgs' ? { name: 'New organization', kind: 'gov' } : { name: 'New carrier', from: String(new Date().getFullYear()), to: null, role: '' }; touch(); render() } }, key === 'orgs' ? 'Add organization' : 'Add carrier')
+  return h('div', {},
+    h('p', { class: 'note' }, key === 'orgs' ? 'Clients and partners of projects. Renaming an id updates every project that uses it.' : 'Companies or roles that carried the work. An empty "to" means still ongoing. Renaming an id updates every project.'),
+    h('div', { class: 'tbl-wrap' }, h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'id'), ...cols.map(([, l]) => h('th', {}, l)), h('th'), h('th'))), h('tbody', {}, ...rows))),
+    h('p', {}, add))
+}
+function rawTab() {
+  const ta = h('textarea', { id: 'raw', spellcheck: 'false', value: JSON.stringify({ meta: D.meta, kinds: D.kinds }, null, 2) })
+  const msg = h('p', { class: 'note' }, 'Edit as JSON. Changes apply when the text is valid.')
+  ta.oninput = () => { try { const v = JSON.parse(ta.value); if (!v.meta || !v.kinds) throw new Error('needs "meta" and "kinds"'); D.meta = v.meta; D.kinds = v.kinds; ta.classList.remove('bad'); msg.textContent = 'Applied.'; touch() } catch (err) { ta.classList.add('bad'); msg.textContent = err.message } }
+  return h('div', { class: 'raw' }, h('p', { class: 'note' }, 'meta.asOf sets "now" for the timeline. kinds set the colors and labels of client types.'), ta, msg)
+}
+
+// ---------- render ----------
+function render() {
+  if (!D) return
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab))
+  $('aside').hidden = tab !== 'projects'
+  $('app').style.gridTemplateColumns = tab === 'projects' ? '' : '1fr'
+  renderList()
+  $('main').replaceChildren(tab === 'projects' ? projectForm()
+    : tab === 'orgs' ? table('orgs', [['name', 'Name'], ['short', 'Short'], ['kind', 'Kind', () => Object.keys(D.kinds)], ['url', 'URL']])
+    : tab === 'carriers' ? table('carriers', [['name', 'Name'], ['from', 'From'], ['to', 'To'], ['role', 'Role']])
+    : rawTab())
+}
+$('tabs').onclick = e => { const t = e.target.closest('button')?.dataset.tab; if (t) { tab = t; render() } }
+
+// ---------- wiring ----------
+$('open').onclick = openFile
+$('save').onclick = save
+$('download').onclick = download
+$('filein').onchange = async e => { const f = e.target.files[0]; if (f) load(await f.text(), f.name, null); e.target.value = '' }
+addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); save() } })
+addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = '' } })
+let dragDepth = 0
+addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; $('drop').hidden = false })
+addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; $('drop').hidden = true } })
+addEventListener('dragover', e => e.preventDefault())
+addEventListener('drop', async e => {
+  e.preventDefault(); dragDepth = 0; $('drop').hidden = true
+  const item = [...e.dataTransfer.items].find(i => i.kind === 'file')
+  if (!item) return
+  const fh = item.getAsFileSystemHandle ? await item.getAsFileSystemHandle().catch(() => null) : null
+  const f = fh ? await fh.getFile() : item.getAsFile()
+  load(await f.text(), f.name, fh)
+})
+// When served over http (jekyll serve, or any static server from the repo root), load the site's file directly.
+if (location.protocol.startsWith('http')) fetch('../projects/projects.json').then(r => r.ok ? r.text() : null).then(t => { if (t && !D) load(t, 'projects.json', null) }).catch(() => {})
+</script>
+</body>
+</html>

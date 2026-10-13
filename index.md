@@ -4,8 +4,6 @@ class: home
 ---
 # Miodrag Milić
 
-A small notebook over the person behind [the projects](/projects/).
-
 ```
 milic.whoami
 ```

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home 10 · Changelog</title>
+<style>
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f1f2f4;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--mono)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mockbar{font:12px var(--mono);color:var(--faint);padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mockbar a{color:var(--faint)}
+
+main{max-width:680px;margin:0 auto;padding:14vh 16px 60px}
+h1{font-size:22px;margin:0} .tag{color:var(--dim);margin:6px 0 18px}
+nav{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:34px}
+h2{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 8px;font-weight:600}
+ol{list-style:none;padding:0;margin:0;border-top:1px solid var(--rule)}
+li{display:grid;grid-template-columns:8ch minmax(0,1fr);gap:14px;padding:9px 0;border-bottom:1px solid var(--rule);font-size:15px}
+time{color:var(--dim);font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<div class="mockbar"><a href="index.html">← all layouts</a><span>10 · Changelog</span><span><a href="09.html">prev</a> · <a href="01.html">next</a></span></div>
+<main>
+<h1>Miodrag Milić</h1><p class="tag">Software architect · automation · open source</p>
+<nav><a href="https://milic.info/about/">~/about</a><a href="https://milic.info/projects/">~/projects</a><a href="https://milic.info/musicbrainz-userscripts">~/musicbrainz</a><a href="https://github.com/majkinetor">github</a></nav>
+<h2>Log</h2><ol>
+<li><time>2026-10</time><span>New site: <a href="https://milic.info/projects/">projects notebook</a>, <a href="https://milic.info/about/">about page</a>, light and dark theme</span></li>
+<li><time>2024</time><span>Started the <a href="https://milic.info/musicbrainz-userscripts">MusicBrainz toolset</a></span></li>
+<li><time>2022</time><span>Founded 1dev</span></li>
+<li><time>2021</time><span>Joined <a href="https://1remote.org">1Remote</a> as PM and designer</span></li>
+<li><time>2020-04</time><span>IDP subsidy registry: 2M citizens paid in hours</span></li>
+</ol></main>
+
+</body>
+</html>

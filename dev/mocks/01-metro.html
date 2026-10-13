@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Transit Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;600;800&family=Overpass+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a subway map turned on its side. Each project is a line, each start a station. */
+:root{
+  --bg:#fbfbfa; --ink:#14181c; --dim:#5d656d; --faint:#a3aab1; --rule:#e4e6e8; --station:#ffffff;
+  --sans:"Overpass",ui-sans-serif,system-ui,sans-serif; --mono:"Overpass Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e9ecef;--dim:#9aa3ab;--faint:#5c646b;--rule:#22282d;--station:#111417;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e9ecef;--dim:#9aa3ab;--faint:#5c646b;--rule:#22282d;--station:#111417;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding:40px 16px 80px}
+a{color:inherit}
+header h1{font-weight:800;font-size:clamp(28px,5vw,44px);letter-spacing:-.02em;line-height:1.05;margin:0}
+header p{color:var(--dim);margin:10px 0 0;max-width:56ch}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:10px;overflow:hidden;margin:28px 0 18px}
+.board div{background:var(--bg);padding:12px 14px}
+.board b{display:block;font:600 26px/1 var(--mono);font-variant-numeric:tabular-nums}
+.board span{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.filters{display:flex;flex-direction:column;gap:8px;margin-bottom:26px}
+.pf-group{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.pf-label{font:600 11px var(--mono);color:var(--faint);text-transform:uppercase;letter-spacing:.08em;width:72px}
+.pf-chip{font:600 13px var(--sans);border:2px solid var(--rule);background:none;color:var(--ink);border-radius:99px;padding:3px 11px 2px 8px;cursor:pointer;display:inline-flex;gap:7px;align-items:center}
+.pf-chip::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--c,var(--faint))}
+.pf-chip .pf-n{font:400 11px var(--mono);color:var(--faint)}
+.pf-chip.on{border-color:var(--c,var(--ink));}
+.pf-chip:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.pf-graph{position:relative;padding-left:var(--gutter,120px)}
+.pf-svg{position:absolute;left:0;top:0;overflow:visible}
+.pf-svg g{transition:opacity .2s}
+.pf-svg.hl g{opacity:.18}.pf-svg.hl g.on{opacity:1}
+.yr{font:800 13px var(--mono);color:var(--faint);padding:18px 0 4px 14px;letter-spacing:.1em}
+.st{padding:6px 0 8px 14px;cursor:pointer;border-radius:6px}
+.st:hover{background:color-mix(in srgb,var(--rule) 45%,transparent)}
+.st .top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.st .name{font-weight:800;font-size:17px;text-decoration:none}
+.st .name:hover{text-decoration:underline}
+.st .when{font:12px var(--mono);color:var(--dim)}
+.st .sub{color:var(--dim);font-size:13.5px}
+.st .more{display:none;max-width:60ch;padding-top:6px;font-size:14px}
+.st.open .more{display:block}
+.st .tags{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:6px;font:12px var(--mono);color:var(--dim)}
+.st .tags b{color:var(--ink);font-weight:600}
+footer{margin-top:40px;color:var(--faint);font-size:12px}
+@media (prefers-reduced-motion:reduce){.pf-svg g{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Lines of work</h1>
+    <p>Twenty-six years of software for Serbian government, private companies and open source. Every line is a project; a station marks where it started. Dashed track is construction, solid track is production.</p>
+  </header>
+  <div class="board" id="board"></div>
+  <div class="filters" id="filters"></div>
+  <div id="graph"></div>
+  <footer>Mock 01 · Transit map · rendered from projects.json</footer>
+</div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+PF.load().then(D => {
+  const board = list => {
+    const s = PF.stats(list)
+    document.getElementById('board').replaceChildren(...[
+      [s.total,'projects'],[s.ongoing,'running now'],[s.years,'years'],[s.peak.n,`in parallel (${s.peak.year})`],[s.institutions,'gov. institutions']
+    ].map(([n,l]) => h('div',{},h('b',{},n),h('span',{},l))))
+  }
+  const graph = document.getElementById('graph')
+  const render = list => {
+    board(list)
+    PF.rowGraph(graph, list, {
+      laneW: 13, minLaneW: 6, pad: 8, anchor: 17, top: 0,
+      year: y => h('div',{class:'yr'}, y),
+      row: p => {
+        const r = h('article',{class:'st', onclick: e => { if (e.target.tagName !== 'A') r.classList.toggle('open') },
+            onmouseenter: () => hl(p.id), onmouseleave: () => hl(null)},
+          h('div',{class:'top'}, h('a',{class:'name',href:PF.url(p)}, p.title), h('span',{class:'when'}, PF.range(p))),
+          h('div',{class:'sub'}, p.subtitle, ' · ', PF.clients(p)),
+          h('div',{class:'more'}, p.summary,
+            h('div',{class:'tags'}, ...(p.metrics||[]).map(m => h('b',{},m)), ...(p.tech||[]).slice(0,5))))
+        return r
+      },
+      draw: (s, p, g) => {
+        const c = PF.color(p), w = Math.max(3, g.lw * .5)
+        const grp = svg('g',{'data-id':p.id}); s.append(grp)
+        const line = (y0, y1, dash) => grp.append(svg('line',{x1:g.x,x2:g.x,y1:y0,y2:y1,stroke:c,'stroke-width':w,'stroke-linecap':'round','stroke-dasharray':dash}))
+        if (g.yl != null) { line(g.y0, g.yl); line(g.yl, g.y1, `${w} ${w*1.4}`) } else line(g.y0, g.y1)
+        if (!p._ongoing) grp.append(svg('line',{x1:g.x-w,x2:g.x+w,y1:g.y0,y2:g.y0,stroke:c,'stroke-width':2.5}))
+        grp.append(svg('line',{x1:g.x,x2:g.W,y1:g.y1,y2:g.y1,stroke:c,'stroke-width':1,opacity:.35}))
+        grp.append(svg('circle',{cx:g.x,cy:g.y1,r:w*.9+1.5,fill:'var(--station)',stroke:'var(--ink)','stroke-width':2}))
+      }
+    })
+  }
+  const hl = id => {
+    const s = graph.querySelector('.pf-svg'); if (!s) return
+    s.classList.toggle('hl', !!id)
+    s.querySelectorAll('g').forEach(g => g.classList.toggle('on', g.dataset.id === id))
+  }
+  PF.chips(document.getElementById('filters'), render, {labels:{kind:'client',carrier:'carried by'}})
+  render(D.projects)
+})
+</script>
+</body>
+</html>

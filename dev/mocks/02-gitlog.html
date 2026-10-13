@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · git log --graph</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: the career as `git log --graph --all`. One branch per project, one commit per start. */
+:root{
+  --bg:#0e1013; --fg:#c9d1d9; --dim:#6e7681; --faint:#30363d; --hash:#d29922; --ref:#3fb950; --tag:#e3b341; --head:#58a6ff; --hl:#161b22;
+  --mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace; color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#fdfdfc;--fg:#1f2328;--dim:#6e7781;--faint:#d8dee4;--hash:#9a6700;--ref:#1a7f37;--tag:#9a6700;--head:#0969da;--hl:#f3f4f6;color-scheme:light}}
+:root[data-theme="light"]{--bg:#fdfdfc;--fg:#1f2328;--dim:#6e7781;--faint:#d8dee4;--hash:#9a6700;--ref:#1a7f37;--tag:#9a6700;--head:#0969da;--hl:#f3f4f6;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:13.5px/1.55 var(--mono)}
+.wrap{max-width:1000px;margin:0 auto;padding:28px 16px 80px}
+a{color:inherit}
+.prompt{color:var(--dim)} .prompt b{color:var(--ref);font-weight:400}
+pre{margin:0;white-space:pre-wrap;font:inherit}
+.stat{margin:14px 0 22px;color:var(--fg)}
+.stat .n{color:var(--hash)}
+.flags{display:flex;flex-wrap:wrap;gap:4px 10px;margin:4px 0 20px}
+.pf-group{display:contents}
+.pf-chip{font:inherit;background:none;border:0;color:var(--dim);cursor:pointer;padding:0}
+.pf-chip::before{content:"--" attr(data-k) "=";}
+.pf-chip .pf-n{display:none}
+.pf-chip.on{color:var(--head)}
+.pf-chip:hover{color:var(--fg)}
+.pf-chip:focus-visible{outline:1px dashed var(--head)}
+.pf-q{font:inherit;background:transparent;border:0;border-bottom:1px dashed var(--faint);color:var(--fg);width:22ch;padding:0 2px}
+.pf-graph{position:relative;padding-left:var(--gutter,120px)}
+.pf-svg{position:absolute;left:0;top:0;overflow:visible}
+.c{padding:1px 0 1px 8px;cursor:pointer}
+.c:hover{background:var(--hl)}
+.c .l1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.h{color:var(--hash)}
+.ref{color:var(--ref)} .ref i{font-style:normal;color:var(--head)} .tag{color:var(--tag)}
+.c .d{color:var(--dim)}
+.c .body{display:none;padding:2px 0 8px 2ch;color:var(--dim);white-space:normal;max-width:78ch}
+.c.open .body{display:block}
+.c .body a{color:var(--head)}
+.yr{color:var(--faint);padding:8px 0 2px 8px}
+.help{color:var(--dim);margin-top:30px}
+@media (max-width:600px){body{font-size:12px}.c .l1{white-space:normal}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="prompt"><b>majkinetor@milic.info</b>:~/career$ git log --graph --all --since=2000</div>
+  <pre class="stat" id="stat"></pre>
+  <div class="flags" id="flags"></div>
+  <div id="graph"></div>
+  <pre class="help">(END) press a commit to show its message · <a href="#" onclick="scrollTo(0,0);return false">q</a> to quit · mock 02</pre>
+</div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+// Classic git graph palette, one colour per lane
+const LANE = ['#f85149','#3fb950','#d29922','#58a6ff','#bc8cff','#39c5cf','#ff7b72','#7ee787','#e3b341','#79c0ff','#d2a8ff','#56d4dd']
+const hash = s => [...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0, 7).toString(16).padStart(7,'0').slice(0,7)
+PF.load().then(D => {
+  const stat = list => {
+    const s = PF.stats(list)
+    document.getElementById('stat').innerHTML =
+      ` <span class="n">${s.total}</span> branches, <span class="n">${s.ongoing}</span> still checked out, ` +
+      `<span class="n">${s.projectYears}</span> project-years over <span class="n">${s.years}</span> years\n` +
+      ` max <span class="n">${s.peak.n}</span> concurrent branches (${s.peak.year}), ` +
+      `<span class="n">${s.institutions}</span> government institutions as upstream`
+  }
+  const graph = document.getElementById('graph')
+  const render = list => {
+    stat(list)
+    PF.rowGraph(graph, list, {
+      laneW: 14, minLaneW: 6, pad: 6, anchor: 11, top: 0, maxFrac: .3,
+      year: y => h('div',{class:'yr'}, `# ${y}`),
+      row: p => {
+        const refs = [h('i',{}, p._ongoing ? 'HEAD -> ' : ''), p.id]
+        const r = h('div',{class:'c', onclick: e => { if (e.target.tagName !== 'A') r.classList.toggle('open') }},
+          h('div',{class:'l1'},
+            h('span',{class:'h'}, hash(p.id)), ' ',
+            h('span',{class:'ref'}, '(', ...refs, p.live ? h('span',{class:'tag'}, `, tag: live@${p.live}`) : '', ')'), ' ',
+            h('b',{}, p.title), ' ', h('span',{class:'d'}, `${PF.range(p)} <${p._carrier.name}>`)),
+          h('div',{class:'body'},
+            p.subtitle, '. ', p.summary, h('br'),
+            'Client: ', PF.clients(p), h('br'),
+            'Stack: ', (p.tech||[]).join(', '), h('br'),
+            ...(p.metrics||[]).map(m => ['+ ', m, h('br')]),
+            h('a',{href:PF.url(p)}, `git show ${p.id} →`)))
+        return r
+      },
+      draw: (s, p, g) => {
+        const c = LANE[p._lane % LANE.length]
+        const top = p._ongoing ? 0 : g.y0
+        s.append(svg('path',{d:`M${g.x} ${top} V${g.y1}`,stroke:c,'stroke-width':2,fill:'none'}))
+        if (!p._ongoing) s.append(svg('path',{d:`M${g.x} ${g.y0} l-4 -6 M${g.x} ${g.y0} l4 -6`,stroke:c,'stroke-width':2,fill:'none'}))
+        if (g.yl != null) s.append(svg('rect',{x:g.x-3.5,y:g.yl-3.5,width:7,height:7,fill:'var(--tag)'}))
+        s.append(svg('circle',{cx:g.x,cy:g.y1,r:4.5,fill:'var(--bg)',stroke:c,'stroke-width':2.2}))
+      }
+    })
+  }
+  const flags = document.getElementById('flags')
+  PF.chips(flags, render, {search:'--grep='})
+  flags.querySelectorAll('.pf-group').forEach(g => g.querySelectorAll('.pf-chip').forEach(b => b.dataset.k = g.dataset.key === 'kind' ? 'client' : 'author'))
+  flags.querySelectorAll('.pf-chip').forEach(b => b.firstChild.textContent = b.dataset.v)
+  render(D.projects)
+})
+</script>
+</body>
+</html>

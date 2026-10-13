@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home 02 · Business card</title>
+<style>
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f1f2f4;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--mono)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mockbar{font:12px var(--mono);color:var(--faint);padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mockbar a{color:var(--faint)}
+
+main{min-height:100%;display:grid;place-items:center;padding-block:12vh 60px}
+.card{width:min(460px,100%);border:1px solid var(--rule);border-radius:12px;padding:28px 28px 22px;background:var(--panel);display:grid;gap:14px}
+h1{font-size:24px;margin:0;letter-spacing:-.01em}
+.tag{color:var(--dim);margin:0}
+.mail{font-size:14px;color:var(--ink);user-select:all}
+nav{display:flex;flex-wrap:wrap;gap:6px 18px;border-top:1px solid var(--rule);padding-top:14px}
+.prof{font-size:12.5px;color:var(--dim)} .prof a{color:var(--dim)}
+body{padding-inline:16px}
+</style>
+</head>
+<body>
+<div class="mockbar"><a href="index.html">← all layouts</a><span>02 · Business card</span><span><a href="01.html">prev</a> · <a href="03.html">next</a></span></div>
+<main><div class="card">
+<h1>Miodrag Milić</h1>
+<p class="tag">Software architect · automation · open source<br>Belgrade, Serbia</p>
+<div class="mail">miodrag AT milic.info</div>
+<nav><a href="https://milic.info/about/">About</a><a href="https://milic.info/projects/">Projects</a><a href="https://milic.info/musicbrainz-userscripts">MusicBrainz</a></nav>
+<div class="prof"><a href="https://github.com/majkinetor">GitHub</a> · <a href="https://stackoverflow.com/users/82660/majkinetor">Stack Overflow</a> · <a href="https://chocolatey.org/profiles/majkinetor">Chocolatey</a> · <a href="https://musicbrainz.org/user/majkinetor">MusicBrainz</a> · <a href="https://www.linkedin.com/in/majkinetor">LinkedIn</a></div>
+</div></main>
+
+</body>
+</html>

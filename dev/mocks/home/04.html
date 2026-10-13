@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home 04 · Timeline sparkline</title>
+<style>
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f1f2f4;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--mono)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mockbar{font:12px var(--mono);color:var(--faint);padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mockbar a{color:var(--faint)}
+
+main{max-width:720px;margin:0 auto;padding:14vh 16px 60px}
+h1{font-size:22px;margin:0} .tag{color:var(--dim);margin:6px 0 26px}
+.spark{display:block;color:inherit;text-decoration:none!important;border:1px solid var(--rule);border-radius:8px;padding:14px 14px 8px}
+.spark:hover{border-color:var(--accent)}
+.spark svg{width:100%;height:90px;display:block}
+.ax{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin-top:6px}
+.cap{font-size:13px;color:var(--dim);margin:8px 0 26px}
+nav{display:flex;flex-wrap:wrap;gap:6px 24px}
+</style>
+</head>
+<body>
+<div class="mockbar"><a href="index.html">← all layouts</a><span>04 · Timeline sparkline</span><span><a href="03.html">prev</a> · <a href="05.html">next</a></span></div>
+<main>
+<h1>Miodrag Milić</h1><p class="tag">Software architect · automation · open source</p>
+<a class="spark" href="https://milic.info/projects/" aria-label="Open the projects notebook"><svg id="sv" viewBox="0 0 600 90" preserveAspectRatio="none" aria-hidden="true"></svg>
+<div class="ax"><span id="a0">2000</span><span id="pk"></span><span id="a1">2026</span></div></a>
+<p class="cap">Projects running at the same time, per quarter. Click for the full timeline.</p>
+<nav><a href="https://milic.info/about/">~/about</a><a href="https://milic.info/projects/">~/projects</a><a href="https://milic.info/musicbrainz-userscripts">~/musicbrainz</a><a href="https://github.com/majkinetor">github</a></nav>
+</main>
+<script>
+const num=(s,end)=>{if(!s)return null;const[y,m]=String(s).split('-').map(Number);return m?y+(m-1)/12+(end?1/12:0):y+(end?1:0)}
+async function loadProjects(){const D=await (await fetch('projects.json')).json();const now=num(D.meta.asOf,true);
+  D.projects.forEach(p=>{p._s=num(p.start);p._e=Math.min(p.end?num(p.end,true):now,now);p._on=!p.end});
+  D.now=now;D.min=Math.floor(Math.min(...D.projects.map(p=>p._s)));return D}
+const active=(D,t)=>D.projects.filter(p=>p._s<=t&&p._e>t).length
+
+loadProjects().then(D=>{const W=600,H=90,pts=[];for(let t=D.min;t<=D.now;t+=.25)pts.push([t,active(D,t)]);
+const mx=Math.max(...pts.map(p=>p[1])),x=t=>(t-D.min)/(D.now-D.min)*W,y=n=>H-4-n/mx*(H-14);
+const pk=pts.find(p=>p[1]===mx);const ns='http://www.w3.org/2000/svg',sv=document.getElementById('sv');
+const mk=(t,a)=>{const e=document.createElementNS(ns,t);for(const k in a)e.setAttribute(k,a[k]);sv.append(e);return e};
+const line=pts.map((p,i)=>(i?'L':'M')+x(p[0]).toFixed(1)+' '+y(p[1]).toFixed(1)).join(' ');
+mk('path',{d:line+` L${W} ${H} L0 ${H} Z`,fill:'var(--accent)',opacity:.14});
+mk('path',{d:line,fill:'none',stroke:'var(--accent)','stroke-width':2,'vector-effect':'non-scaling-stroke'});
+mk('circle',{cx:x(pk[0]),cy:y(mx),r:3.5,fill:'var(--accent)'});
+document.getElementById('a0').textContent=D.min;document.getElementById('a1').textContent=Math.floor(D.now);
+document.getElementById('pk').textContent=`peak ${mx} at once, ${Math.floor(pk[0])}`}).catch(()=>{})
+</script>
+</body>
+</html>

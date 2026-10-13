@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home 05 · Man page</title>
+<style>
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f1f2f4;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--mono)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mockbar{font:12px var(--mono);color:var(--faint);padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mockbar a{color:var(--faint)}
+
+main{max-width:760px;margin:0 auto;padding:10vh 16px 60px;font-size:15px}
+.hd{display:flex;justify-content:space-between;gap:12px;color:var(--dim);margin-bottom:22px}
+h2{font-size:15px;margin:22px 0 4px;letter-spacing:.02em}
+.in{padding-left:7ch;max-width:72ch} .in p{margin:0 0 8px}
+dl{margin:0;display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 3ch}
+dd{margin:0;color:var(--dim)}
+@media (max-width:520px){.in{padding-left:3ch}.hd span:nth-child(2){display:none}}
+</style>
+</head>
+<body>
+<div class="mockbar"><a href="index.html">← all layouts</a><span>05 · Man page</span><span><a href="04.html">prev</a> · <a href="06.html">next</a></span></div>
+<main>
+<div class="hd"><span>MILIC(1)</span><span>People Manual</span><span>MILIC(1)</span></div>
+<h2>NAME</h2><div class="in"><p>milic — Miodrag Milić, software architect, Belgrade</p></div>
+<h2>SYNOPSIS</h2><div class="in"><p><b>milic</b> [--automate] [--open-source] <i>service</i> ...</p></div>
+<h2>DESCRIPTION</h2><div class="in"><p>Builds and runs software since 2000, mostly for the Serbian state. Cares about the whole life of a service, from first commit to archive.</p></div>
+<h2>FILES</h2><div class="in"><dl>
+<dt><a href="https://milic.info/about/">~/about</a></dt><dd>who, where, how</dd>
+<dt><a href="https://milic.info/projects/">~/projects</a></dt><dd>42 projects as an interactive notebook</dd>
+<dt><a href="https://milic.info/musicbrainz-userscripts">~/musicbrainz</a></dt><dd>userscripts for MusicBrainz editors</dd></dl></div>
+<h2>SEE ALSO</h2><div class="in"><p><a href="https://github.com/majkinetor">GitHub</a> · <a href="https://stackoverflow.com/users/82660/majkinetor">Stack Overflow</a> · <a href="https://chocolatey.org/profiles/majkinetor">Chocolatey</a> · <a href="https://musicbrainz.org/user/majkinetor">MusicBrainz</a> · <a href="https://www.linkedin.com/in/majkinetor">LinkedIn</a></p></div>
+<h2>BUGS</h2><div class="in"><p>Automates things that were working fine by hand.</p></div>
+<div class="hd" style="margin-top:28px"><span>milic.info</span><span>October 2026</span><span>MILIC(1)</span></div>
+</main>
+
+</body>
+</html>

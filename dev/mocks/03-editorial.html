@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Editorial</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;1,8..60,400&display=swap">
+<style>
+/* Layout: magazine spread. Giant outlined years, hairline threads for projects, featured work set large. */
+:root{
+  --bg:#f6f6f3; --ink:#15151a; --dim:#62626b; --faint:#c9c9cf; --accent:#2236d6; --paper:#ffffff;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif; --body:"Source Serif 4",Georgia,serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121216;--ink:#ececf1;--dim:#9a9aa6;--faint:#34343c;--accent:#8c9bff;--paper:#1a1a20;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#121216;--ink:#ececf1;--dim:#9a9aa6;--faint:#34343c;--accent:#8c9bff;--paper:#1a1a20;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--body)}
+.wrap{max-width:980px;margin:0 auto;padding:56px 16px 90px}
+a{color:inherit}
+.kicker{font:700 12px var(--display);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+h1{font:800 clamp(40px,8vw,88px)/.92 var(--display);letter-spacing:-.035em;margin:10px 0 0;text-wrap:balance}
+.lede{font-style:italic;color:var(--dim);max-width:52ch;margin:18px 0 0}
+.nums{display:flex;flex-wrap:wrap;gap:12px 40px;margin:40px 0 30px;padding:18px 0;border-top:2px solid var(--ink);border-bottom:1px solid var(--faint)}
+.nums div{font:13px var(--display);color:var(--dim)}
+.nums b{display:block;font:800 40px/1 var(--display);color:var(--ink);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.filters{display:flex;flex-wrap:wrap;gap:6px 22px;margin-bottom:36px;font-family:var(--display)}
+.pf-group{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:baseline}
+.pf-label{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.pf-chip{font:600 15px var(--display);background:none;border:0;padding:0;color:var(--dim);cursor:pointer;border-bottom:2px solid transparent}
+.pf-chip .pf-n{font-weight:400;font-size:11px;vertical-align:super;margin-left:2px}
+.pf-chip.on{color:var(--accent);border-color:var(--accent)}
+.pf-chip:focus-visible{outline:2px solid var(--accent)}
+.pf-graph{position:relative;padding-left:var(--gutter,120px)}
+.pf-svg{position:absolute;left:0;top:0;overflow:visible}
+.pf-svg line{transition:stroke .15s,stroke-width .15s}
+.yr{font:800 clamp(56px,10vw,104px)/1 var(--display);color:transparent;-webkit-text-stroke:1.2px var(--faint);letter-spacing:-.04em;padding:30px 0 0 18px;font-variant-numeric:tabular-nums}
+.e{padding:6px 0 10px 18px;max-width:640px}
+.e .t{font:700 19px/1.2 var(--display);text-decoration:none}
+.e.feat .t{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:-.02em}
+.e .t:hover{color:var(--accent)}
+.e .m{font:12.5px var(--display);color:var(--dim);margin-top:2px}
+.e .s{margin:6px 0 0;font-size:16px}
+.e:not(.feat) .s{display:none}
+.e.open .s{display:block}
+.e .facts{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font:600 12.5px var(--display);color:var(--accent)}
+.e:not(.feat):not(.open) .facts{display:none}
+.e .x{font:12px var(--display);color:var(--dim);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;margin-left:6px}
+footer{margin-top:60px;font:12px var(--display);color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Selected work · 2000–2026</div>
+  <h1>Twenty-six years of software that had to keep running.</h1>
+  <p class="lede">Treasury payments, national registries, COVID aid for a whole country, and the open source tools I built along the way. Each thread is a project; follow it up to see how long it stayed alive.</p>
+  <div class="nums" id="nums"></div>
+  <div class="filters" id="filters"></div>
+  <div id="graph"></div>
+  <footer>Mock 03 · Editorial · rendered from projects.json</footer>
+</div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+PF.load().then(D => {
+  const graph = document.getElementById('graph')
+  const nums = list => { const s = PF.stats(list)
+    document.getElementById('nums').replaceChildren(...[[s.total,'projects'],[s.ongoing,'still running'],[s.peak.n,`at once, ${s.peak.year}`],[s.institutions,'institutions served'],[s.projectYears,'project-years']]
+      .map(([n,l]) => h('div',{},h('b',{},n),l))) }
+  const focus = (id, on) => graph.querySelectorAll(`line[data-id="${id}"]`).forEach(l => {
+    l.setAttribute('stroke', on ? 'var(--accent)' : (l.dataset.c)); l.setAttribute('stroke-width', on ? 3 : l.dataset.w) })
+  const render = list => {
+    nums(list)
+    PF.rowGraph(graph, list, {
+      laneW: 9, minLaneW: 5, pad: 4, top: 0, maxFrac: .28,
+      anchor: r => r.classList.contains('feat') ? 22 : 14,
+      year: y => h('div',{class:'yr'}, y),
+      row: p => {
+        const r = h('div',{class:'e' + (p.featured ? ' feat' : ''), onmouseenter: () => focus(p.id, 1), onmouseleave: () => focus(p.id, 0)},
+          h('a',{class:'t',href:PF.url(p)}, p.title),
+          h('div',{class:'m'}, `${PF.range(p)} · ${p.subtitle} · ${PF.clients(p)}`,
+            p.featured ? '' : h('button',{class:'x',type:'button',onclick:()=>r.classList.toggle('open')}, 'more')),
+          h('p',{class:'s'}, p.summary),
+          h('div',{class:'facts'}, ...(p.metrics||[]).map(m => h('span',{},m))))
+        return r
+      },
+      draw: (s, p, g) => {
+        const c = p.featured ? 'var(--ink)' : 'var(--faint)', w = p.featured ? 1.6 : 1
+        s.append(svg('line',{'data-id':p.id,'data-c':c,'data-w':w,x1:g.x,x2:g.x,y1:g.y0,y2:g.y1,stroke:c,'stroke-width':w}))
+        s.append(svg('line',{'data-id':p.id,'data-c':c,'data-w':w,x1:g.x,x2:g.W,y1:g.y1,y2:g.y1,stroke:c,'stroke-width':w}))
+        s.append(svg('rect',{x:g.x-3,y:g.y1-3,width:6,height:6,fill: p.featured ? 'var(--accent)' : 'var(--dim)'}))
+      }
+    })
+  }
+  PF.chips(document.getElementById('filters'), render, {labels:{kind:'For',carrier:'With'}})
+  render(D.projects)
+})
+</script>
+</body>
+</html>

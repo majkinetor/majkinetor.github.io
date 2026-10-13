@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{% if page.url == "/" %}{{ site.title }}{% else %}{{ page.title }} · {{ site.title }}{% endif %}</title>
 {% if page.description %}<meta name="description" content="{{ page.description }}">{% endif %}
-<script src="/theme.js"></script>
+<script src="/theme.js?v={{ site.time | date: "%s" }}"></script>
 {% if page.class == "home" %}<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,700&family=Fira+Code:wght@400&display=swap">
-{% endif %}<link rel="stylesheet" href="/assets/site.css">
+{% endif %}<link rel="stylesheet" href="/assets/site.css?v={{ site.time | date: "%s" }}">
 </head>
 <body class="{{ page.class }}">
 <main>

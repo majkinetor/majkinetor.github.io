@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · RFC 2026</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Layout: a plain-text RFC. 72 columns, ASCII lane graph, nothing that a 1990 terminal could not print. */
+:root{ --bg:#ffffff; --fg:#111111; --dim:#6a6a6a; --link:#0b4fb3; --mark:#fff3b0;
+  --mono:"Courier Prime","Courier New",ui-monospace,monospace; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#141414;--fg:#e2e2e2;--dim:#8d8d8d;--link:#86b4ff;--mark:#3a3413;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141414;--fg:#e2e2e2;--dim:#8d8d8d;--link:#86b4ff;--mark:#3a3413;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.35 var(--mono)}
+.doc{max-width:calc(112ch + 32px);margin:0 auto;padding:40px 16px 80px;overflow-x:auto}
+pre,.l{margin:0;font:inherit;white-space:pre;min-height:1.35em}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+.f{cursor:pointer;color:var(--link)} .f.on{background:var(--mark);color:var(--fg)}
+.row{cursor:pointer} .row:hover{background:var(--mark)}
+.x{color:var(--dim);white-space:pre-wrap;display:none} .row.open + .x{display:block}
+.dim{color:var(--dim)}
+.pf-group,.pf-chip{display:none}
+</style>
+</head>
+<body>
+<div class="doc" id="doc"></div>
+<script src="pf.js"></script>
+<script>
+const {h} = PF
+const pad = (s, n) => String(s).padEnd(n), lpad = (s, n) => String(s).padStart(n)
+const wrap = (s, w = 69, ind = '   ') => { const out = []; let line = ''
+  for (const word of s.split(' ')) { if ((line + ' ' + word).trim().length > w - ind.length) { out.push(ind + line.trim()); line = '' } line += ' ' + word }
+  if (line.trim()) out.push(ind + line.trim()); return out.join('\n') }
+let kind = null
+PF.load().then(D => {
+  const doc = document.getElementById('doc')
+  const render = () => {
+    const list = D.projects.filter(p => !kind || p._kind === kind), s = PF.stats(list)
+    const nL = PF.lanes(list, .01)
+    const L = []  // nodes
+    const T = t => L.push(h('div',{class:'l'}, t))
+    const head = [['Network Working Group','M. Milić'],['Request for Comments: 2026','1dev'],['Category: Informational','October 2026']]
+    head.forEach(([a,b]) => T(pad(a, 72 - b.length) + b))
+    T(''); T(''); T(lpad('Projects of Miodrag Milić, 2000-2026', 54)); T('')
+    T('Status of This Memo'); T('')
+    T(wrap(`This memo documents ${s.total} software projects built or led by the author over ${s.years} years. Distribution of this memo is unlimited.`)); T('')
+    T('Abstract'); T('')
+    T(wrap('Government payment systems, national registries, open source tooling. Most of them ran 24/7, most of them in parallel, and all of them on open source software with on-premise hardware.')); T('')
+    // filter "links"
+    const f = h('div',{class:'l'}, '   Filter: ')
+    ;[[null,'ALL'],['gov','GOV'],['private','PRIVATE'],['foss','FOSS']].forEach(([k,l]) => { f.append(h('span',{class:'f' + (kind === k ? ' on' : ''), onclick:()=>{ kind = k; render() }}, `[${l}]`), ' ') })
+    L.push(f); T('')
+    T('Table of Contents'); T('')
+    ;['1.  Summary', '2.  Conventions', '3.  Timeline', '4.  Upstream Institutions', '5.  Security Considerations', '6.  Author\'s Address'].forEach(x => T('   ' + x)); T('')
+    T('1.  Summary'); T('')
+    const rows = [['Projects', s.total], ['Running now', s.ongoing], ['Peak concurrency', `${s.peak.n} (${s.peak.year})`], ['Government institutions', s.institutions], ['Project-years', s.projectYears], ['Government / private / FOSS', `${s.gov} / ${s.private} / ${s.foss}`]]
+    T('   +' + '-'.repeat(30) + '+' + '-'.repeat(14) + '+')
+    rows.forEach(([k, v]) => T(`   | ${pad(k, 29)}| ${lpad(v, 12)} |`))
+    T('   +' + '-'.repeat(30) + '+' + '-'.repeat(14) + '+'); T('')
+    T('2.  Conventions'); T('')
+    T(wrap('The key words "MUST", "SHOULD" and "MAY" do not appear in this document, but each project MUST have a start date. In the timeline, "*" marks the start of a project, "|" a project in production, ":" a project in development and "+" its last year. Time flows downward. Select a row to read its abstract.')); T('')
+    T('3.  Timeline'); T('')
+    const sorted = [...list].sort((a, b) => b._s - a._s || b._e - a._e)
+    const seen = new Set()
+    let yr = null
+    for (const p of sorted) {
+      const t = p._s
+      if (Math.floor(t) !== yr) { yr = Math.floor(t); T(`   ${yr}`) }
+      let g = ''
+      const idx = sorted.indexOf(p)
+      for (let l = 0; l < nL; l++) {
+        const q = l === p._lane ? null : sorted.find((q, i) => i > idx && q._lane === l && q._e > t)
+        if (l === p._lane) g += '* '
+        else if (!q) g += '  '
+        else {
+          const dev = q._live && t < q._live
+          g += (!q._ongoing && !seen.has(q.id) ? '+' : dev ? ':' : '|') + ' '
+          seen.add(q.id)
+        }
+      }
+      seen.add(p.id)
+      const line = h('div',{class:'l row', onclick:e => { if (e.target.tagName !== 'A') line.classList.toggle('open') }},
+        '   ' + g + ' ', h('a',{href:PF.url(p)}, p.title), ' ' + '.'.repeat(Math.max(2, 26 - p.title.length)) + ' ' + PF.range(p))
+      L.push(line)
+      L.push(h('div',{class:'x'}, wrap(`${p.subtitle}. ${p.summary} [${PF.clients(p)}; ${(p.tech||[]).slice(0,4).join(', ')}]`, 72, '   ' + ' '.repeat(nL * 2 + 4))))
+    }
+    T('')
+    T('4.  Upstream Institutions'); T('')
+    const orgs = {}
+    list.forEach(p => p._clients.forEach(c => (orgs[c.id] ??= { ...c, n: 0 }).n++))
+    Object.values(orgs).sort((a, b) => b.n - a.n).forEach((o, i) => T(`   4.${pad(i + 1 + '.', 4)}${pad(o.name, 46)}${lpad(o.n, 3)} project${o.n > 1 ? 's' : ''}`)); T('')
+    T('5.  Security Considerations'); T('')
+    T(wrap('All systems listed here were hosted on-premise using open source software and commodity hardware. The only public cloud used was Cloudflare, for DDoS protection of the subsidy registry (IDP), which received 10M+ requests per day.')); T('')
+    T('6.  Author\'s Address'); T('')
+    const addr = h('div',{class:'l'}, '   Miodrag Milić\n   Belgrade, Serbia\n   Web:    ', h('a',{href:'https://milic.info'}, 'https://milic.info'), '\n   GitHub: ', h('a',{href:'https://github.com/majkinetor'}, 'https://github.com/majkinetor'))
+    L.push(addr); T('')
+    L.push(h('div',{class:'l dim'}, pad('Milić', 30) + pad('Informational', 34) + '[Page 1]'))
+    doc.replaceChildren(...L)
+  }
+  render()
+})
+</script>
+</body>
+</html>

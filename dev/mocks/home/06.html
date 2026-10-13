@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home 06 · Notebook cell</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,700&family=Fira+Code:wght@400&display=swap">
+<style>
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f1f2f4;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--mono)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mockbar{font:12px var(--mono);color:var(--faint);padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mockbar a{color:var(--faint)}
+
+:root{--serif:"Literata",Georgia,serif;--code:"Fira Code",ui-monospace,monospace}
+body{font:17px/1.65 var(--serif)}
+main{max-width:720px;margin:0 auto;padding:12vh 16px 60px}
+h1{font:700 32px/1.2 var(--serif);margin:0 0 10px}
+p{margin:0 0 16px;max-width:60ch;color:var(--dim)}
+.in{display:flex;gap:10px;background:var(--panel);border-radius:8px;padding:10px 12px;font:14px var(--code)}
+.in span{color:var(--dim)}
+.out{border-left:3px solid var(--rule);padding:8px 0 4px 14px;margin:8px 0 26px;font:14px var(--code);display:grid;grid-template-columns:max-content minmax(0,1fr);gap:2px 16px}
+.out span:nth-child(odd){color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="mockbar"><a href="index.html">← all layouts</a><span>06 · Notebook cell</span><span><a href="05.html">prev</a> · <a href="07.html">next</a></span></div>
+<main>
+<h1>Miodrag Milić</h1>
+<p>A small notebook over the person behind <a href="https://milic.info/projects/">the projects</a>.</p>
+<div class="in"><span>[1]</span>milic.whoami</div>
+<div class="out"><span>:role =></span><span>"software architect"</span><span>:since =></span><span>2000</span><span>:city =></span><span>"Belgrade"</span><span>:likes =></span><span>["automation", "open source", "long-lived services"]</span></div>
+<div class="in"><span>[2]</span>milic.links</div>
+<div class="out"><span>:about =></span><a href="https://milic.info/about/">/about</a><span>:projects =></span><a href="https://milic.info/projects/">/projects</a><span>:musicbrainz =></span><a href="https://milic.info/musicbrainz-userscripts">/musicbrainz-userscripts</a><span>:github =></span><a href="https://github.com/majkinetor">majkinetor</a></div>
+</main>
+
+</body>
+</html>

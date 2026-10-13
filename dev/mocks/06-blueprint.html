@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Projects · Blueprint</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=B612+Mono:wght@400;700&display=swap">
+<style>
+/* Layout: an engineering drawing, sheet 1 of 1. True time scale, leader lines to labels, title block holds the stats. Single theme by design. */
+:root{
+  --paper:#17457f; --line:#e8f1ff; --faint:rgba(232,241,255,.16); --mid:rgba(232,241,255,.55); --hi:#ffd166;
+  --mono:"B612 Mono",ui-monospace,Consolas,monospace; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{background:var(--paper)}
+body{margin:0;color:var(--line);font:13px/1.45 var(--mono);
+  background-image:linear-gradient(var(--faint) 1px,transparent 1px),linear-gradient(90deg,var(--faint) 1px,transparent 1px),
+                   linear-gradient(rgba(232,241,255,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(232,241,255,.06) 1px,transparent 1px);
+  background-size:80px 80px,80px 80px,16px 16px,16px 16px}
+.sheet{max-width:1100px;margin:0 auto;padding:28px 16px 60px}
+.frame{border:2px solid var(--line);outline:1px solid var(--line);outline-offset:4px;padding:18px}
+a{color:var(--line)}
+h1{font:700 22px var(--mono);letter-spacing:.18em;margin:0;text-transform:uppercase}
+.note{color:var(--mid);margin:4px 0 16px;max-width:70ch}
+.layers{display:flex;flex-wrap:wrap;gap:4px 18px;margin-bottom:14px;text-transform:uppercase;font-size:12px}
+.pf-group{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.pf-label{color:var(--mid)}
+.pf-chip{font:inherit;background:none;border:1px solid var(--mid);color:var(--line);padding:2px 8px;cursor:pointer;text-transform:uppercase}
+.pf-chip::before{content:"[ ] "} .pf-chip.on::before{content:"[x] "}
+.pf-chip.on{border-color:var(--hi);color:var(--hi)}
+.pf-chip .pf-n{display:none}
+.draw{overflow-x:auto}
+svg{display:block}
+svg text{fill:var(--line);font-family:var(--mono)}
+.lbl{cursor:pointer}
+.lbl:hover text,.lbl.on text{fill:var(--hi)}
+.tb{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:2px solid var(--line);margin-top:18px}
+.tb div{border:1px solid var(--line);padding:6px 10px}
+.tb small{display:block;color:var(--mid);font-size:10px;letter-spacing:.12em}
+.tb b{font-size:18px;font-variant-numeric:tabular-nums}
+.detail{grid-column:1/-1;min-height:84px}
+.detail .t{font-weight:700;color:var(--hi);text-decoration:none;font-size:15px}
+</style>
+</head>
+<body>
+<div class="sheet"><div class="frame">
+  <h1>Projects · General arrangement</h1>
+  <div class="note">Scale 1 year : 90 px. Each vertical member is one project, dimensioned from start to end. Double line marks development, single line marks production. Select a label for detail A.</div>
+  <div class="layers" id="filters"></div>
+  <div class="draw" id="draw"></div>
+  <div class="tb" id="tb"></div>
+</div></div>
+<script src="pf.js"></script>
+<script>
+const {h, svg} = PF
+const PX = 90
+PF.load().then(D => {
+  const host = document.getElementById('draw')
+  let selected = null
+  const detail = p => {
+    const d = document.querySelector('.detail'); if (!d) return
+    d.replaceChildren(h('small',{}, 'DETAIL A'), ...(p ? [h('a',{class:'t',href:PF.url(p)}, `${p.title} →`), h('div',{}, `${PF.range(p)} · ${p.subtitle} · ${PF.clients(p)}`), h('div',{style:{color:'var(--mid)'}}, p.summary)] : [h('div',{style:{color:'var(--mid)'}}, 'NO SELECTION')]))
+  }
+  const render = list => {
+    const s = PF.stats(list)
+    document.getElementById('tb').replaceChildren(
+      ...[['DRAWN BY','M. MILIĆ'],['PROJECTS',s.total],['IN SERVICE',s.ongoing],['PEAK LOAD',`${s.peak.n} @ ${s.peak.year}`],['INSTITUTIONS',s.institutions],['SPAN',`${s.since}–${Math.floor(D.now)}`],['SHEET','1 / 1']]
+        .map(([k,v]) => h('div',{}, h('small',{},k), h('b',{},v))), h('div',{class:'detail'}))
+    detail(selected)
+    const n = PF.lanes(list, .15)
+    const HW = host.clientWidth, LW = Math.max(5, Math.min(16, (HW * .42 - 70) / n)), X0 = 70, LX = X0 + n * LW + 40, W = Math.max(HW, LX + 240)
+    const H = (D.now - D.min) * PX + 60, y = t => (D.now - t) * PX + 30
+    const g = svg('svg',{width:W, height:H, viewBox:`0 0 ${W} ${H}`})
+    // time axis with dimension ticks
+    g.append(svg('line',{x1:40,x2:40,y1:y(D.now),y2:y(D.min),stroke:'var(--line)','stroke-width':1}))
+    for (let yr = Math.floor(D.now); yr >= D.min; yr--) {
+      g.append(svg('line',{x1:34,x2:46,y1:y(yr),y2:y(yr),stroke:'var(--line)'}))
+      for (let q = 1; q < 4; q++) g.append(svg('line',{x1:37,x2:43,y1:y(yr + q/4),y2:y(yr + q/4),stroke:'var(--mid)'}))
+      const t = svg('text',{x:30,y:y(yr)+4,'text-anchor':'end','font-size':11}); t.textContent = yr; g.append(t)
+    }
+    // members
+    const labels = []
+    for (const p of list) {
+      const x = X0 + p._lane * LW + LW / 2, y0 = y(p._e), y1 = y(p._s)
+      const live = p._live ? y(p._live) : y0
+      g.append(svg('line',{x1:x,x2:x,y1:y0,y2:live,stroke:'var(--line)','stroke-width':1.4}))
+      if (p._live) { g.append(svg('line',{x1:x-2,x2:x-2,y1:live,y2:y1,stroke:'var(--line)'})); g.append(svg('line',{x1:x+2,x2:x+2,y1:live,y2:y1,stroke:'var(--line)'})) }
+      if (!p._ongoing) g.append(svg('line',{x1:x-4,x2:x+4,y1:y0,y2:y0,stroke:'var(--line)'}))
+      else g.append(svg('path',{d:`M${x-4} ${y0+6} L${x} ${y0} L${x+4} ${y0+6}`,stroke:'var(--line)',fill:'none'}))
+      g.append(svg('circle',{cx:x,cy:y1,r:3,fill:'var(--paper)',stroke:'var(--line)','stroke-width':1.4}))
+      labels.push({p, x, y: y1})
+    }
+    // labels: placed at start height, pushed down to avoid collisions, joined by leader lines
+    labels.sort((a, b) => a.y - b.y)
+    let last = -Infinity
+    for (const L of labels) {
+      const ly = Math.max(L.y, last + 30); last = ly
+      g.append(svg('path',{d:`M${L.x} ${L.y} H${LX - 18} L${LX - 6} ${ly} H${LX - 2}`,stroke:'var(--mid)',fill:'none','stroke-dasharray':'3 2'}))
+      const a = svg('g',{class:'lbl' + (selected === L.p ? ' on' : ''),tabindex:0,role:'button'})
+      const t1 = svg('text',{x:LX,y:ly+4,'font-size':13,'font-weight':700}); t1.textContent = L.p.title.toUpperCase()
+      const t2 = svg('text',{x:LX,y:ly+18,'font-size':10.5,fill:'var(--mid)',opacity:.8}); t2.textContent = `${PF.range(L.p)} · ${(L.p._clients[0]?.short||'')} · ${PF.dur(L.p)}`
+      a.append(t1, t2)
+      a.addEventListener('click', () => { selected = L.p; g.querySelectorAll('.lbl').forEach(e => e.classList.remove('on')); a.classList.add('on'); detail(L.p) })
+      g.append(a)
+    }
+    const needH = last + 40
+    if (needH > H) { g.setAttribute('height', needH); g.setAttribute('viewBox', `0 0 ${W} ${needH}`) }
+    host.replaceChildren(g)
+  }
+  PF.chips(document.getElementById('filters'), render, {carriers:false, labels:{kind:'Layers:'}})
+  render(D.projects)
+  addEventListener('resize', () => render(PF.filtered()))
+})
+</script>
+</body>
+</html>

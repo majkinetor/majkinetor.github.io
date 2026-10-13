@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Home 01 · Terminal session</title>
+<style>
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f1f2f4;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--faint:#5c646b;--rule:#23292e;--accent:#6ea8ff;--panel:#191d21;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--mono)}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mockbar{font:12px var(--mono);color:var(--faint);padding:10px 16px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.mockbar a{color:var(--faint)}
+
+main{max-width:720px;margin:0 auto;padding:14vh 16px 60px}
+.t{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:18px 20px;font-size:15px;line-height:1.7;overflow-x:auto}
+.p{color:var(--dim)} .p b{color:var(--accent);font-weight:600}
+.out{margin:0 0 10px} .ls{display:flex;flex-wrap:wrap;gap:4px 22px;margin:0 0 10px}
+.ls a::after{content:"/";color:var(--dim)}
+.cur{display:inline-block;width:.6em;height:1.1em;background:var(--ink);vertical-align:-.2em;animation:b 1.1s steps(1) infinite}
+@keyframes b{50%{opacity:0}} @media (prefers-reduced-motion:reduce){.cur{animation:none}}
+</style>
+</head>
+<body>
+<div class="mockbar"><a href="index.html">← all layouts</a><span>01 · Terminal session</span><span><a href="10.html">prev</a> · <a href="02.html">next</a></span></div>
+<main><div class="t">
+<div class="p"><b>majkinetor@milic.info</b>:~$ whoami</div>
+<div class="out">Miodrag Milić · software architect · automation · open source</div>
+<div class="p"><b>majkinetor@milic.info</b>:~$ ls</div>
+<div class="ls"><a href="https://milic.info/about/">about</a><a href="https://milic.info/projects/">projects</a><a href="https://milic.info/musicbrainz-userscripts">musicbrainz</a></div>
+<div class="p"><b>majkinetor@milic.info</b>:~$ cat .links</div>
+<div class="out"><a href="https://github.com/majkinetor">GitHub</a> · <a href="https://stackoverflow.com/users/82660/majkinetor">Stack Overflow</a> · <a href="https://chocolatey.org/profiles/majkinetor">Chocolatey</a> · <a href="https://musicbrainz.org/user/majkinetor">MusicBrainz</a> · <a href="https://www.linkedin.com/in/majkinetor">LinkedIn</a></div>
+<div class="p"><b>majkinetor@milic.info</b>:~$ <span class="cur"></span></div>
+</div></main>
+
+</body>
+</html>
