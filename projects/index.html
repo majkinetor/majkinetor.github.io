@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Projects · Miodrag Milić</title>
+<script src="../theme.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,700;1,7..72,400&family=Fira+Code:wght@400;600&display=swap">
 <style>
 /* Layout: an interactive notebook. Prose cells explain, code cells query projects.json, outputs render the timeline. */
@@ -58,7 +59,7 @@ p{margin:0 0 14px;max-width:62ch}
   <p>Most of the work was for the Serbian state: Treasury, Ministry of Finance, Customs, eGovernment. Open source ran next to it the whole time.</p>
   <div class="cell" data-q="projects.group_by(:client)"></div>
   <p>Here is the whole career as a timeline. Each line is a project from its start (the dot) to its end. Change the query to filter it, or try one of the examples.</p>
-  <div class="cell" data-q="projects.featured.timeline" data-ex='["projects.timeline","projects.where(kind: :gov).timeline","projects.where(carrier: :oss).timeline","projects.grep(\"vue\").timeline","projects.since(2019).timeline","projects.running.map(:title)"]'></div>
+  <div class="cell" data-q="projects.timeline" data-ex='["projects.featured.timeline","projects.where(kind: :gov).timeline","projects.where(carrier: :oss).timeline","projects.grep(\"vue\").timeline","projects.since(2019).timeline","projects.running.map(:title)"]'></div>
 </div>
 <script src="pf.js"></script>
 <script>
