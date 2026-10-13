@@ -1,0 +1,14 @@
+# Site settings. Pages are Markdown files with a small front matter header:
+#   ---
+#   title: Page title
+#   ---
+title: Miodrag Milić
+url: https://milic.info
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+defaults:
+  - scope: { path: "" }
+    values: { layout: default }
+exclude: [dev, README.md]

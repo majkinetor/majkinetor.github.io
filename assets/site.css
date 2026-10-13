@@ -1,0 +1,21 @@
+/* Shared style for Markdown pages: one mono reading column, light and dark. */
+:root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --rule:#e3e5e8; --accent:#2f6fd6;
+  --mono:ui-monospace,"Cascadia Code",Menlo,Consolas,monospace; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--rule:#23292e;--accent:#6ea8ff;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111417;--ink:#e8ebee;--dim:#98a1a9;--rule:#23292e;--accent:#6ea8ff;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 var(--mono)}
+main{max-width:680px;margin:0 auto;padding:12vh 16px 60px}
+a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+.crumb{font-size:13px;color:var(--dim);margin-bottom:22px} .crumb a{color:var(--dim)}
+h1{font-size:22px;margin:0}
+h1 + p{color:var(--dim);margin:6px 0 28px}
+h2{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin:36px 0 10px;font-weight:600}
+p{margin:0 0 14px;max-width:64ch}
+ul{padding-left:2ch;margin:0 0 14px} li{margin:4px 0}
+.where{margin:0 0 8px} .where b{color:var(--dim);font-weight:600} .where a{white-space:nowrap}
+
+/* Home: a short centred card with a plain link list */
+.home main{max-width:640px;padding-top:18vh}
+.home ul{list-style:none;padding:0;display:flex;flex-direction:column;gap:6px}
+.home li{margin:0}

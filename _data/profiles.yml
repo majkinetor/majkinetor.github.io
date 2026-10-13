@@ -1,0 +1,22 @@
+# Profiles listed on the about page, grouped. Order here is order on the page.
+- group: Code
+  links:
+    - [GitHub, https://github.com/majkinetor]
+    - [GitLab, https://gitlab.com/majkinetor]
+    - [Stack Overflow, https://stackoverflow.com/users/82660/majkinetor]
+    - [PowerShell Gallery, https://www.powershellgallery.com/profiles/majkinetor]
+    - [Chocolatey, https://chocolatey.org/profiles/majkinetor]
+    - [Docker Hub, https://hub.docker.com/u/majkinetor]
+- group: Music
+  links:
+    - [MusicBrainz, https://musicbrainz.org/user/majkinetor]
+    - [ListenBrainz, https://listenbrainz.org/user/majkinetor]
+    - [SoundCloud, https://soundcloud.com/majkinetor]
+    - [Bandcamp, https://bandcamp.com/majkinetor]
+- group: Elsewhere
+  links:
+    - [LinkedIn, https://www.linkedin.com/in/majkinetor]
+    - [Hacker News, https://news.ycombinator.com/user?id=majkinetor]
+    - [Reddit, https://www.reddit.com/user/majkinetor]
+    - [Lobsters, https://lobste.rs/u/majkinetor]
+    - [Twitter, https://twitter.com/majkinetor]
