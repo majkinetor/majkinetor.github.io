@@ -27,7 +27,7 @@ milic.links
 milic.life
 ```
 
-<div class="out" id="life"><canvas aria-label="Game of Life seeded with the letters MILIĆ"></canvas><div class="bar"><span class="k">:generation =&gt;</span> <span id="gen">0</span><span class="ctl"><button type="button" id="lplay">play</button><button type="button" id="lstep">step</button><button type="button" id="lreset">reset</button></span></div><div class="hint">click or drag to draw cells</div></div>
+<div class="out" id="life"><canvas aria-label="Game of Life seeded with the letters MILIĆ"></canvas><div class="bar"><span class="k">:generation =&gt;</span> <span id="gen">0</span><span class="ctl"><button type="button" id="lplay">play</button><button type="button" id="lstep">step</button><button type="button" id="lreset">reset</button></span></div><div class="bar"><span class="k">:pattern =&gt;</span><span class="ctl pat"><button type="button" data-p="milić">milić</button><button type="button" data-p="gun">gun</button><button type="button" data-p="pulsar">pulsar</button><button type="button" data-p="pentadecathlon">pentadecathlon</button><button type="button" data-p="spaceships">spaceships</button><button type="button" data-p="acorn">acorn</button><button type="button" data-p="soup">soup</button></span></div><div class="hint">click or drag to draw cells</div></div>
 
 ```
 projects.sparkline

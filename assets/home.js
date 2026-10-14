@@ -2,25 +2,43 @@
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim()
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches
 
-// milic.life: Game of Life seeded from a 5x7 bitmap of MILIĆ.
-// Shows the name for a moment, runs until it settles into a loop, then starts over.
+// milic.life: Game of Life on a 64x16 torus.
+// Default start is MILIĆ plus an R-pentomino and a glider, which keeps it busy for ~1440
+// generations; when it finally repeats, it starts over. The pattern bar loads classics.
 ;(() => {
   const cv = document.querySelector('#life canvas')
   if (!cv) return
-  const F = { M: ['10001', '11011', '10101', '10101', '10001', '10001', '10001'], I: ['111', '010', '010', '010', '010', '010', '111'],
-              L: ['100', '100', '100', '100', '100', '100', '111'], C: ['01110', '10001', '10000', '10000', '10000', '10001', '01110'] }
   const W = 64, H = 16, g = cv.getContext('2d'), gen$ = document.getElementById('gen'), play = document.getElementById('lplay')
-  let a, gen, seen, timer, running = false
+  const L = { M: ['#...#', '##.##', '#.#.#', '#.#.#', '#...#', '#...#', '#...#'], I: ['###', '.#.', '.#.', '.#.', '.#.', '.#.', '###'],
+              l: ['#..', '#..', '#..', '#..', '#..', '#..', '###'], C: ['.###.', '#...#', '#....', '#....', '#....', '#...#', '.###.'] }
+  const LWSS = ['#..#.', '....#', '#...#', '.####'], MWSS = ['..#...', '#...#.', '.....#', '#....#', '.#####'],
+        HWSS = ['..##...', '#....#.', '......#', '#.....#', '.######']
+  const name = () => {
+    const out = [], word = 'MIlIC', width = [...word].reduce((s, c) => s + L[c][0].length + 1, -1)
+    let x = (W - width) >> 1
+    for (const c of word) { out.push([L[c], x, 5]); x += L[c][0].length + 1 }
+    out.push([['.#', '#.'], x - 4, 2])                               // the acute on Ć
+    return out
+  }
+  const P = {
+    'milić': () => [...name(), [['.##', '##.', '.#.'], 2, 1], [['.#.', '#..', '###'], 55, 5]],
+    'gun': () => [[['........................#', '......................#.#', '............##......##............##', '...........#...#....##............##',
+                    '##........#.....#...##', '##........#...#.##....#.#', '..........#.....#.......#', '...........#...#', '............##'], 14, 3]],
+    'pulsar': () => { const r = [], q = '..###...###..', s = '#....#.#....#'
+                      for (const y of [0, 5, 7, 12]) r[y] = q; for (const y of [2, 3, 4, 8, 9, 10]) r[y] = s
+                      return [[[...r].map(x => x || ''), 25, 1]] },
+    'pentadecathlon': () => [[['##########'], 27, 7]],
+    'spaceships': () => [[LWSS, 40, 0], [HWSS, 25, 5], [MWSS, 20, 11]],
+    'acorn': () => [[['.#.....', '...#...', '##..###'], 28, 6]],
+    'soup': () => [[Array.from({ length: 12 }, () => Array.from({ length: 40 }, () => Math.random() < .35 ? '#' : '.').join('')), 12, 2]],
+  }
+  let a, gen, seen, timer, running = false, current = 'milić', restart
 
-  function seed() {
+  function load(p) {
+    current = p; clearTimeout(restart)
     a = new Uint8Array(W * H); gen = 0; seen = new Map()
-    const word = ['M', 'I', 'L', 'I', 'C'], width = word.reduce((s, c) => s + F[c][0].length + 1, -1)
-    let x0 = (W - width) >> 1; const y0 = 5
-    for (const c of word) {
-      F[c].forEach((row, y) => [...row].forEach((b, x) => b === '1' && (a[(y0 + y) * W + x0 + x] = 1)))
-      x0 += F[c][0].length + 1
-    }
-    a[(y0 - 3) * W + x0 - 3] = 1; a[(y0 - 2) * W + x0 - 4] = 1   // the acute on Ć
+    for (const [rows, x0, y0] of P[p]()) rows.forEach((r, y) => [...r].forEach((c, x) => c === '#' && (a[((y0 + y) % H) * W + (x0 + x) % W] = 1)))
+    document.querySelectorAll('[data-p]').forEach(b => b.classList.toggle('on', b.dataset.p === p))
     draw()
   }
   function step() {
@@ -33,11 +51,13 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
       b[i] = n === 3 || (n === 2 && a[i]) ? 1 : 0
     }
     a = b; gen++
-    const key = a.join('')
-    if (seen.has(key) && gen - seen.get(key) < 40) {
-      set(false)
-      setTimeout(() => { seed(); setTimeout(() => set(true), 3000) }, 2000)
-    } else seen.set(key, gen)
+    if (current === 'milić') {                     // the default start loops: once a state repeats, show the name again
+      const key = a.join('')
+      if (seen.has(key)) {
+        set(false)
+        restart = setTimeout(() => { load('milić'); restart = setTimeout(() => set(true), 3000) }, 2000)
+      } else seen.set(key, gen)
+    }
     draw()
   }
   function draw() {
@@ -51,13 +71,15 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   }
   function set(on) {
     running = on; clearInterval(timer)
-    if (on) timer = setInterval(step, 160)
+    if (on) timer = setInterval(step, 120)
     play.textContent = on ? 'pause' : 'play'
   }
 
   play.onclick = () => set(!running)
   document.getElementById('lstep').onclick = () => { set(false); step() }
-  document.getElementById('lreset').onclick = () => seed()
+  document.getElementById('lreset').onclick = () => load(current)
+  document.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { load(b.dataset.p); if (!still) set(true) })
+
   // Click toggles a cell; dragging paints the same state as the first cell got
   let paint = null
   const cell = e => {
@@ -78,7 +100,7 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   cv.onpointerup = cv.onpointercancel = () => paint = null
   addEventListener('resize', draw)
   new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-  seed()
+  load('milić')
   if (!still) setTimeout(() => set(true), 3000)
 })()
 
