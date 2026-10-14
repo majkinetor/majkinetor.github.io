@@ -19,6 +19,7 @@
     "customs":     { "name": "Customs Administration",        "short": "Customs",     "kind": "gov",     "url": "https://www.carina.rs" },
     "euprava":     { "name": "Office for IT and eGovernment", "short": "eGov",        "kind": "gov",     "url": "https://www.euprava.gov.rs" },
     "mup":         { "name": "Ministry of Interior",          "short": "MoI",         "kind": "gov",     "url": "https://www.mup.gov.rs" },
+    "mpravde":     { "name": "Ministry of Justice",           "short": "MoJ",         "kind": "gov",     "url": "https://mpravde.gov.rs/" },
     "generali":    { "name": "Generali Insurance",            "short": "Generali",    "kind": "private", "url": "https://www.generali.rs" },
     "saga":        { "name": "SAGA",                          "short": "SAGA",        "kind": "private", "url": "http://saga.rs" },
     "nil":         { "name": "KnowIT (NIL)",                  "short": "NIL",         "kind": "private" },
@@ -91,7 +92,7 @@
 
     { "id": "epredmet", "title": "ePredmet", "subtitle": "Court cases of budget users",
       "summary": "Budget users see their court cases, verdicts, liabilities and enforced payments. Five institutions, two-person team.",
-      "start": "2020", "end": "2025-12", "live": "2023", "client": ["trezor", "mfin"], "carrier": "1dev", "partners": ["nil"],
+      "start": "2020", "end": "2025-12", "live": "2023", "client": ["trezor", "mpravde", "mfin"], "carrier": "1dev", "partners": ["nil"],
       "roles": ["pm", "analyst", "ops", "devops"], "tech": ["ASP.NET", "Vue.js", "MkDocs"],
       "links": { "site": "https://epredmet.trezor.gov.rs" } },
 
