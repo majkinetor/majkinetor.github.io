@@ -103,8 +103,8 @@
 
     { "id": "ta-site-free", "title": "Treasury Website", "subtitle": "Maintenance and development",
       "summary": "Continued development of the Treasury public site in Ruby and Nanoc.",
-      "start": "2019", "end": "2025-12", "client": ["trezor"], "carrier": "nil",
-      "roles": ["dev", "pm", "devops", "analyst"], "tech": ["Ruby", "Nanoc"] },
+      "start": "2022", "end": "2025-12", "client": ["trezor"], "carrier": "1dev",
+      "roles": ["dev", "pm", "devops", "analyst"], "tech": ["Ruby", "Nanoc"], "continues": "ta-site" },
 
     { "id": "epp", "title": "ePP", "subtitle": "Treasury Online Payments",
       "summary": "Online banking for all budget users of Serbia. 24/7, 20M+ payment orders a year, six sub-services.",
@@ -162,6 +162,12 @@
       "start": "2017", "end": "2020", "live": "2018-03", "client": ["trezor"], "carrier": "trezor",
       "roles": ["pm", "lead", "dev", "architect", "devops", "analyst"], "tech": ["ASP.NET Core", "Vue.js", "SQL Server", "Ansible", "Rundeck", "ELK", "TICK"],
       "metrics": ["1M+ users", "300K companies"], "links": { "archive": "https://web.archive.org/web/20191022111040/https://www.trezor.gov.rs/src/services/crf/" }, "featured": true },
+
+    { "id": "ta-site", "title": "Treasury Website", "subtitle": "Public site with legal-grade history",
+      "summary": "Solo project. Return to any point in time, auto transliteration, text-to-speech, 20+ non-technical editors.",
+      "start": "2017", "end": "2019-05", "live": "2018-02", "client": ["trezor"], "carrier": "trezor",
+      "roles": ["author"], "tech": ["Ruby", "Nanoc", "SASS", "SVN", "Sphinx"],
+      "links": { "archive": "https://web.archive.org/web/20191019224149/http://www.trezor.gov.rs/en/about/site" } },
 
     { "id": "isib", "title": "ISIB", "subtitle": "Budget Execution Information System",
       "summary": "Next incarnation of the Treasury core service. Five companies, 100+ people, one CI/CD architecture.",
