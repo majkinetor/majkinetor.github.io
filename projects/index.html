@@ -44,9 +44,22 @@ p{margin:0 0 14px;max-width:62ch}
 .r{padding:3px 0 3px 10px;font-size:15px;line-height:1.35}
 .r a{color:var(--ink);font-weight:700;text-decoration:none}
 .r a:hover{color:var(--accent)}
-.r small{font:12px var(--code);color:var(--dim);margin-left:8px}
+.r small{font:12px var(--code);color:var(--dim);margin-left:8px;white-space:nowrap}
 .r .s{display:block;color:var(--dim);font-size:13.5px}
 .yr{font:600 12px var(--code);color:var(--dim);padding:10px 0 0 10px}
+/* Phones: thinner timeline lanes (set in JS), tighter text, bigger tap targets */
+@media (max-width:560px){
+  body{font-size:16px}
+  .wrap{padding-top:28px}
+  .in{font-size:13px;padding:8px 10px}
+  .in button{padding:8px 12px}
+  .ex{gap:0 12px}
+  .ex button{padding:5px 0}
+  .out{padding-left:10px;font-size:13px}
+  .r{font-size:14px;padding-left:8px}
+  .r .s{font-size:13px}
+  .yr{padding-left:8px}
+}
 </style>
 </head>
 <body>
@@ -94,13 +107,14 @@ PF.load().then(D => {
           return h('div',{class:'hbar'}, ...Object.entries(groups).sort((a,b)=>b[1]-a[1]).flatMap(([k, n]) => [h('span',{style:{color:'var(--sym)'}}, ':' + k), h('i',{style:{width:n/max*100+'%', background: D.kinds[k] ? `var(--${k})` : 'var(--dim)'}}), h('span',{}, n)])) }
         case 'timeline': { const out = h('div')
           if (!list.length) return h('span',{class:'pr'}, '[]')
-          PF.rowGraph(out, list, { laneW: 10, minLaneW: 5, pad: 4, anchor: 12, top: 0, maxFrac: .3,
+          const phone = matchMedia('(max-width:560px)').matches
+          PF.rowGraph(out, list, { laneW: 10, minLaneW: phone ? 3 : 5, pad: 4, anchor: 12, top: 0, maxFrac: phone ? .22 : .3,
             year: y => h('div',{class:'yr'}, y),
             row: p => h('div',{class:'r'}, h('a',{href:PF.url(p)}, p.title), h('small',{}, PF.range(p)), h('span',{class:'s'}, p.subtitle)),
             draw: (s, p, g) => {
               const c = `var(--${p._kind})`
               s.append(svg('line',{x1:g.x,x2:g.x,y1:g.y0,y2:g.y1,stroke:c,'stroke-width':Math.max(2, g.lw*.4),'stroke-linecap':'round'}))
-              s.append(svg('circle',{cx:g.x,cy:g.y1,r:3.5,fill:c}))
+              s.append(svg('circle',{cx:g.x,cy:g.y1,r:Math.min(3.5, Math.max(2.5, g.lw*.7)),fill:c}))
             } })
           return out }
         default: throw new Error(`unknown method .${fn}`)
