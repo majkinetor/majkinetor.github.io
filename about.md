@@ -10,7 +10,7 @@ I studied mathematics with a focus on computer science, and I've been writing so
 
 If something can be automated, I automate it, on Windows and Linux alike: automated tests, CI/CD, integrations, GUI and browser automation, unattended installs, helper tools, and smart home devices. I've used plenty of languages and paradigms along the way, and I'm as comfortable in object-oriented design as in functional code or a server's shell.
 
-What I enjoy most is the whole life of a service, not just the first release. That covers everything from the initial analysis, the first lines of code, design and tests, to going to production and, finally, years of fine-tuning and maintenance. Almost anyone can keep a project going for a year or two, but problems accumulate later, once entropy has had time to build up. Most of my systems run 24/7 on open source software and on-premise hardware, and many have been running for close to a decade with almost zero issues.
+I am extremely passionate about the technologies we use in our everyday lives. What I enjoy most are projects that change people's lives: hard projects that take on a life of their own. I have started many of them and carried them from the initial analysis, through the first lines of code, design and tests, to going to production and, later, years of fine-tuning and maintenance. Almost anyone can keep a project going for a year or two, but the hard problems accumulate later, once entropy has had time to build up. Almost all of my systems run 24/7 on open source components and on-premise hardware, and many have been running for close to a decade with almost zero issues.
 
 Outside of work there is open source, audio synthesis, music collecting, medicine and nutrition, cooking, gaming, and being a dad.
 
