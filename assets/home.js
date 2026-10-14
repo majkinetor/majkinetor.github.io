@@ -77,7 +77,7 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
 
   play.onclick = () => set(!running)
   document.getElementById('lstep').onclick = () => { set(false); step() }
-  document.getElementById('lreset').onclick = () => load(current)
+  document.getElementById('lreset').onclick = () => { set(false); load(current); if (!still) restart = setTimeout(() => set(true), 2500) }
   document.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { load(b.dataset.p); if (!still) set(true) })
 
   // Click toggles a cell; dragging paints the same state as the first cell got
