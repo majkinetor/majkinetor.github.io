@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>projects.json editor</title>
-<script src="../theme.js"></script>
+<script src="../docs/theme.js"></script>
 <style>
 /* Layout: toolbar on top, project list on the left, form on the right. Same tokens as the site. */
 :root{ --bg:#fbfbfa; --ink:#15181c; --dim:#5f666e; --faint:#a3aab1; --rule:#e3e5e8; --accent:#2f6fd6; --panel:#f2f3f5; --field:#ffffff;
@@ -106,7 +106,7 @@ td input,td select{padding:4px 6px}
   </aside>
   <main id="main">
     <div class="empty">
-      <p><b>Open <code>projects/projects.json</code></b> from your copy of the site to start.</p>
+      <p><b>Open <code>docs/projects/projects.json</code></b> from your copy of the site to start.</p>
       <p>In Chrome or Edge, Save writes straight back to the file. In other browsers, use Download copy and replace the file yourself.</p>
       <p>You can also drop the file anywhere on this page.</p>
     </div>
@@ -224,7 +224,7 @@ async function save() {
 function download() {
   const a = h('a', { href: URL.createObjectURL(new Blob([serialize(D)], { type: 'application/json' })), download: fileName })
   a.click(); URL.revokeObjectURL(a.href)
-  dirty = false; clearDraft(); setStatus(`Downloaded ${fileName}. Replace projects/projects.json with it.`)
+  dirty = false; clearDraft(); setStatus(`Downloaded ${fileName}. Replace docs/projects/projects.json with it.`)
 }
 function setStatus(msg, isErr) { const s = $('status'); s.textContent = msg; s.className = isErr ? 'dirty' : '' }
 function touch() {
@@ -431,7 +431,7 @@ addEventListener('drop', async e => {
   load(await f.text(), f.name, fh)
 })
 // When served over http (jekyll serve, or any static server from the repo root), load the site's file directly.
-if (location.protocol.startsWith('http')) fetch('../projects/projects.json').then(r => r.ok ? r.text() : null).then(t => { if (t && !D) load(t, 'projects.json', null) }).catch(() => {})
+if (location.protocol.startsWith('http')) fetch('../docs/projects/projects.json').then(r => r.ok ? r.text() : null).then(t => { if (t && !D) load(t, 'projects.json', null) }).catch(() => {})
 </script>
 </body>
 </html>
