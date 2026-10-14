@@ -22,7 +22,6 @@
     "generali":    { "name": "Generali Insurance",            "short": "Generali",    "kind": "private", "url": "https://www.generali.rs" },
     "saga":        { "name": "SAGA",                          "short": "SAGA",        "kind": "private", "url": "http://saga.rs" },
     "nil":         { "name": "KnowIT (NIL)",                  "short": "NIL",         "kind": "private" },
-    "elektrika":   { "name": "Elektrika",                     "short": "Elektrika",   "kind": "private" },
     "pexim":       { "name": "Pexim",                         "short": "Pexim",       "kind": "private" },
     "oracle":      { "name": "Oracle",                        "short": "Oracle",      "kind": "private", "url": "https://osa.rs"},
     "chocolatey":  { "name": "Chocolatey community",          "short": "Chocolatey",  "kind": "foss",    "url": "https://community.chocolatey.org" },
@@ -32,7 +31,6 @@
   },
 
   "carriers": {
-    "elektrika": { "name": "Elektrika",               "from": "2000", "to": "2004", "role": "System administration & development" },
     "pexim":     { "name": "Pexim",                   "from": "2000", "to": "2001", "role": "Software development" },
     "trezor":    { "name": "Treasury Administration", "from": "2005", "to": "2019-05", "role": "Senior advisor R&D, then Head of R&D" },
     "nil":       { "name": "KnowIT (NIL)",            "from": "2019", "to": "2025-12", "role": "Principal Software Engineer" },
@@ -105,7 +103,7 @@
 
     { "id": "ta-site-free", "title": "Treasury Website", "subtitle": "Maintenance and development",
       "summary": "Continued development of the Treasury public site in Ruby and Nanoc.",
-      "start": "2017", "end": "2025-12", "live": "2018-02", "client": ["trezor"], "carrier": "1dev", "partners": ["nil"],
+      "start": "2019", "end": "2025-12", "client": ["trezor"], "carrier": "nil",
       "roles": ["dev", "pm", "devops", "analyst"], "tech": ["Ruby", "Nanoc"] },
 
     { "id": "epp", "title": "ePP", "subtitle": "Treasury Online Payments",
@@ -257,11 +255,6 @@
       "summary": "Independent research on hardware and technology: programming frameworks, documentation systems, utilities.",
       "start": "2005", "end": "2012", "client": ["trezor"], "carrier": "trezor",
       "roles": ["dev", "research"], "tech": ["C#", "ASP.NET", "SQL Server", "AutoHotkey", "PowerShell"] },
-
-    { "id": "woodcut", "title": "Woodcut Optimizer", "subtitle": "Optimal partitioning for woodcutting machines",
-      "summary": "Software for automation and optimal partitioning in woodcutting machinery.",
-      "start": "2001", "end": "2004", "approx": true, "client": ["elektrika"], "carrier": "elektrika",
-      "roles": ["dev"], "tech": ["Delphi"] },
 
     { "id": "pexim-bank", "title": "Pexim Banking", "subtitle": "Banking software",
       "summary": "Banking software in Delphi, plus installation, integration, refactoring, testing and documentation.",
