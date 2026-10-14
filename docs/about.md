@@ -6,7 +6,7 @@ permalink: /about/
 
 Principal engineer · software architect · automation · open source · Belgrade, Serbia
 
-I studied mathematics with a focus on computer science, and I've been writing software for a living since 2000. I've worked on pretty much every kind of application: various utilities and libraries, open source tools, and online services that millions of people depend on every day. Most of the big ones were for the Serbian state: Treasury payment systems, national registries, budget information systems, and the subsidy registry that paid two million citizens within hours. I created the bank from from scratch.
+I studied mathematics with a focus on computer science, and I've been writing software for a living since 2000. I've worked on pretty much every kind of application: various utilities and libraries, open source tools, and online services that millions of people depend on every day. Most of the big ones were for the Serbian state: Treasury payment systems, national registries, budget information systems, and the subsidy registry that paid two million citizens within hours. I created the bank from scratch.
 
 If something can be automated, I'll do it, on Windows or Linux: automated tests, CI/CD, integrations, GUI and browser automation, unattended installs, helper tools, and smart home devices. I've used plenty of languages and paradigms along the way, and I'm as comfortable in object-oriented design as in functional code or a server's shell.
 
