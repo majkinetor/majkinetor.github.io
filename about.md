@@ -30,7 +30,7 @@ See the detailed list and timeline of [my projects](/projects/).
 Author and maintainer since 2006:
 
 - [MusicBrainz userscripts](/musicbrainz-userscripts)
-- [1Remote](https://1remote.org) remote manager
+- [1Remote](https://1remote.github.io/) remote manager
 - [Chocolatey](https://community.chocolatey.org): AU, the automatic package updater, plus core team and 100+ community packages
 - PowerShell modules, documentation as source code (mm-docs), Windows image building
 

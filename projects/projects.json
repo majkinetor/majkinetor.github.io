@@ -27,7 +27,7 @@
     "chocolatey":  { "name": "Chocolatey community",          "short": "Chocolatey",  "kind": "foss",    "url": "https://community.chocolatey.org" },
     "musicbrainz": { "name": "MusicBrainz community",         "short": "MusicBrainz", "kind": "foss",    "url": "https://musicbrainz.org" },
     "github":      { "name": "GitHub",                        "short": "GitHub",      "kind": "foss",    "url": "https://github.com/majkinetor" },
-    "1remote":     { "name": "1Remote",                       "short": "1Remote",     "kind": "foss",    "url": "https://1remote.org" }
+    "1remote":     { "name": "1Remote",                       "short": "1Remote",     "kind": "foss",    "url": "https://1remote.github.io/" }
   },
 
   "carriers": {
