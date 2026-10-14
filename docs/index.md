@@ -8,7 +8,7 @@ class: home
 milic.whoami
 ```
 
-- **:role** ["principal engineer", "software architect", "devops", "system analyst", "anything"]
+- **:role** ["principal engineer", "software architect", "devops", "analyst"]
 - **:since** 2000
 - **:city** "Belgrade"
 - **:country** "Serbia"
