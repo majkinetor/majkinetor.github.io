@@ -46,6 +46,7 @@ li > strong:first-child{font:600 .88em var(--mono)}
 .home .sw{display:inline-block;max-width:100%}
 .home .spark{font:40px/1 var(--code);color:var(--accent);white-space:nowrap;overflow:hidden;min-height:40px}
 .home .spark span:hover{color:var(--ink)}
+.home .more{margin:8px 0 0;font-size:13px}
 .home .axis{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--dim)}
 /* Phones: value goes on its own line under the key, long links wrap */
 @media (max-width:560px){

@@ -33,4 +33,4 @@ milic.life
 projects.sparkline
 ```
 
-<div class="out"><div class="sw"><div id="spark" class="spark"></div><div class="axis"><span id="y0"></span><span>projects running per year</span><span id="y1"></span></div></div><div class="kv"><span class="k">:peak =&gt;</span><span id="peak"></span></div></div>
+<div class="out"><div class="sw"><div id="spark" class="spark"></div><div class="axis"><span id="y0"></span><span>projects running per year</span><span id="y1"></span></div></div><div class="kv"><span class="k">:peak =&gt;</span><span id="peak"></span></div><p class="more"><a href="/projects/">View all projects →</a></p></div>
