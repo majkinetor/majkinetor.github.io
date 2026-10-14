@@ -58,11 +58,24 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   play.onclick = () => set(!running)
   document.getElementById('lstep').onclick = () => { set(false); step() }
   document.getElementById('lreset').onclick = () => seed()
-  cv.onclick = e => {
+  // Click toggles a cell; dragging paints the same state as the first cell got
+  let paint = null
+  const cell = e => {
     const c = cv.clientWidth / W, b = cv.getBoundingClientRect()
-    a[Math.floor((e.clientY - b.top) / c) * W + Math.floor((e.clientX - b.left) / c)] ^= 1
-    seen = new Map(); draw()
+    const x = Math.floor((e.clientX - b.left) / c), y = Math.floor((e.clientY - b.top) / c)
+    return x >= 0 && x < W && y >= 0 && y < H ? y * W + x : -1
   }
+  cv.onpointerdown = e => {
+    const i = cell(e); if (i < 0) return
+    paint = a[i] ^ 1; a[i] = paint; seen = new Map(); draw()
+    cv.setPointerCapture(e.pointerId); e.preventDefault()
+  }
+  cv.onpointermove = e => {
+    if (paint === null) return
+    const i = cell(e)
+    if (i >= 0 && a[i] !== paint) { a[i] = paint; draw() }
+  }
+  cv.onpointerup = cv.onpointercancel = () => paint = null
   addEventListener('resize', draw)
   new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
   seed()

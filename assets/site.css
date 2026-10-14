@@ -36,7 +36,7 @@ li > strong:first-child{font:600 .88em var(--mono)}
 .home .out{border-left:3px solid var(--rule);margin:8px 0 26px;padding:8px 0 6px 14px;font:14px/1.6 var(--code)}
 .home .k{color:var(--accent)}
 .home .kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:0 14px;margin-top:6px}
-#life canvas{display:block;width:100%;cursor:crosshair;border-radius:4px}
+#life canvas{display:block;width:100%;cursor:crosshair;border-radius:4px;touch-action:none}
 .home .bar{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-top:6px}
 .home .ctl{display:inline-flex;gap:6px;margin-left:auto}
 .home .ctl button{font:12px var(--code);color:var(--dim);background:var(--panel);border:1px solid var(--rule);border-radius:5px;padding:3px 9px;cursor:pointer}
