@@ -20,7 +20,11 @@ li > strong:first-child{font:600 .88em var(--mono)}
 /* Home: a notebook. Each code block is an input cell, the list after it is its output. */
 .home{--serif:"Literata",Georgia,serif;--code:"Fira Code",ui-monospace,monospace;font:17px/1.65 var(--serif);counter-reset:cell}
 .home main{max-width:720px;padding-top:12vh}
-.home h1{font:700 32px/1.2 var(--serif);margin:0 0 18px}
+.home h1{font:700 34px/1.2 "Space Grotesk",system-ui,sans-serif;letter-spacing:-.02em;margin:0 0 18px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.home .ti{display:inline-flex;gap:12px}
+.home .ti a{display:grid;place-items:center;width:30px;height:30px;color:var(--dim);border-radius:6px}
+.home .ti a:hover,.home .ti a:focus-visible{color:var(--accent)}
+.home .ti svg{width:22px;height:22px}
 .home pre{counter-increment:cell;background:var(--panel);border-radius:8px;padding:10px 12px;margin:0;font:14px var(--code);overflow-x:auto}
 .home pre code{font:inherit}
 .home pre::before{content:"[" counter(cell) "]";color:var(--dim);margin-right:10px}

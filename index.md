@@ -2,7 +2,7 @@
 title: Home
 class: home
 ---
-# Miodrag Milić
+# Miodrag Milić {% include title-icons.html %}
 
 ```
 milic.whoami
