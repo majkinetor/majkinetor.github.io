@@ -21,7 +21,7 @@ See the detailed list and timeline of [my projects](/projects/).
 - **2022–2026** · 1dev: Founder & CEO
 - **2019–2026** · KnowIT (NIL): Principal Software Engineer
 - **2005–2019** · Treasury Administration
-- **2000–2001** · Pexim
+- **2001–2002** · Pexim
 - **2000–2002** · Elektrika
 - Occasional freelance work throughout
 

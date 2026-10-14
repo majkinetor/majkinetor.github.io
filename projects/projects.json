@@ -31,7 +31,7 @@
   },
 
   "carriers": {
-    "pexim":     { "name": "Pexim",                   "from": "2000", "to": "2001", "role": "Software development" },
+    "pexim":     { "name": "Pexim",                   "from": "2001", "to": "2002", "role": "Software development" },
     "trezor":    { "name": "Treasury Administration", "from": "2005", "to": "2019-05", "role": "Senior advisor R&D, then Head of R&D" },
     "nil":       { "name": "KnowIT (NIL)",            "from": "2019", "to": "2025-12", "role": "Principal Software Engineer" },
     "1dev":      { "name": "1dev",                    "from": "2022", "to": "2025-12", "role": "Founder & CEO" },
@@ -264,7 +264,7 @@
 
     { "id": "pexim-bank", "title": "Pexim Banking", "subtitle": "Banking software",
       "summary": "Banking software in Delphi, plus installation, integration, refactoring, testing and documentation.",
-      "start": "2000", "end": "2001", "client": ["pexim"], "carrier": "pexim",
+      "start": "2001", "end": "2002", "client": ["pexim"], "carrier": "pexim",
       "roles": ["dev"], "tech": ["Delphi"] }
   ]
 }
