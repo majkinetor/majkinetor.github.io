@@ -12,4 +12,4 @@ kramdown:
 defaults:
   - scope: { path: "" }
     values: { layout: default }
-exclude: [dev, README.md]
+exclude: [dev, README.md, AGENTS.md]
