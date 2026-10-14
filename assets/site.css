@@ -32,6 +32,20 @@ li > strong:first-child{font:600 .88em var(--mono)}
 .home .highlighter-rouge + ul li{display:contents}
 .home .highlighter-rouge + ul strong{font:inherit;color:var(--accent);white-space:nowrap}
 .home .highlighter-rouge + ul strong::after{content:" =>"}
+/* Live cells (assets/home.js): Game of Life and the projects sparkline */
+.home .out{border-left:3px solid var(--rule);margin:8px 0 26px;padding:8px 0 6px 14px;font:14px/1.6 var(--code)}
+.home .k{color:var(--accent)}
+.home .kv{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:0 14px;margin-top:6px}
+#life canvas{display:block;width:100%;cursor:crosshair;border-radius:4px}
+.home .bar{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;margin-top:6px}
+.home .ctl{display:inline-flex;gap:6px;margin-left:auto}
+.home .ctl button{font:12px var(--code);color:var(--dim);background:var(--panel);border:1px solid var(--rule);border-radius:5px;padding:3px 9px;cursor:pointer}
+.home .ctl button:hover,.home .ctl button:focus-visible{color:var(--accent);border-color:var(--accent)}
+.home .hint{font-size:12px;color:var(--dim)}
+.home .sw{display:inline-block;max-width:100%}
+.home .spark{font:40px/1 var(--code);color:var(--accent);white-space:nowrap;overflow:hidden;min-height:40px}
+.home .spark span:hover{color:var(--ink)}
+.home .axis{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--dim)}
 /* Phones: value goes on its own line under the key, long links wrap */
 @media (max-width:560px){
   .home h1{font-size:27px}
@@ -39,4 +53,7 @@ li > strong:first-child{font:600 .88em var(--mono)}
   .home .highlighter-rouge + ul{display:block;overflow-wrap:anywhere}
   .home .highlighter-rouge + ul li{display:block;padding-left:2ch;margin:0 0 6px}
   .home .highlighter-rouge + ul strong{display:block;margin-left:-2ch}
+  .home .out{font-size:13px}
+  .home .spark{font-size:min(40px,5.4vw);min-height:0}
+  .home .ctl{margin-left:0}
 }
