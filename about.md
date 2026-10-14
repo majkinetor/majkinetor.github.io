@@ -4,36 +4,41 @@ permalink: /about/
 ---
 # Miodrag Milić
 
-Software architect · automation · open source · Belgrade, Serbia
+Principal engineer · software architect · automation · open source · Belgrade, Serbia
 
-Hi. I studied mathematics with a focus on computer science, and I've been writing software for a living since 2000. Over that time I've worked on pretty much every kind of application: small utilities and libraries, open source tools, and online services that millions of people depend on every day. Most of the big ones were for the Serbian state: Treasury payment systems, national registries, budget information systems, and the subsidy registry that paid two million citizens within hours.
+I studied mathematics with a focus on computer science, and I've been writing software for a living since 2000. I've worked on pretty much every kind of application: small utilities and libraries, open source tools, and online services that millions of people depend on every day. Most of the big ones were for the Serbian state: Treasury payment systems, national registries, budget information systems, and the subsidy registry that paid two million citizens within hours.
 
-If something can be automated, I'm probably already automating it. That covers Windows and Linux alike: unattended installs, helper tools, automated tests, CI/CD, integrations, GUI and browser automation, and the occasional smart gadget around the house. I've used plenty of languages and paradigms along the way, and I'm as comfortable in object-oriented design as in functional code or a server's shell.
+If something can be automated, I automate it, on Windows and Linux alike: automated tests, CI/CD, integrations, GUI and browser automation, unattended installs, helper tools, and smart home devices. I've used plenty of languages and paradigms along the way, and I'm as comfortable in object-oriented design as in functional code or a server's shell.
 
-What I enjoy most is the whole life of a service, not just the first release. That means the first lines of code, the design and tests, the move to production, years of maintenance, and eventually a tidy archive. Almost anyone can keep a project going for a year or two. The interesting problems show up later, when entropy has had time to build up. Most of my systems run 24/7 on open source software and on-premise hardware, and many have been running for close to a decade.
+What I enjoy most is the whole life of a service, not just the first release. That covers everything from the initial analysis, the first lines of code, design and tests, to going to production and, finally, years of fine-tuning and maintenance. Almost anyone can keep a project going for a year or two, but problems accumulate later, once entropy has had time to build up. Most of my systems run 24/7 on open source software and on-premise hardware, and many have been running for close to a decade with almost zero issues.
 
-Outside of work there's more open source, plus audio synthesis, medicine and nutrition, cooking, some gaming, and being a dad.
+Outside of work there is open source, audio synthesis, music collecting, medicine and nutrition, cooking, gaming, and being a dad.
 
 ## Work
 
-- **2022–now** · 1dev: Founder & CEO
-- **2019–2026** · KnowIT (NIL): Principal Software Engineer. Treasury online payments, bank statement service, JAFIN-NG
-- **2018–now** · Freelance: Architect, lead, consultant. IDP subsidy registry, PIMIS, DevOps training
-- **2005–2019** · Treasury Administration: Senior Advisor for R&D, then Head of R&D. CIR, ISIB, eGovernment, Customs MQ
-- **2000–2004** · Elektrika, Pexim: System administration and software development
+See the detailed list and timeline of [my projects](/projects/).
+
+- **2022–2026** · 1dev: Founder & CEO
+- **2019–2026** · KnowIT (NIL): Principal Software Engineer
+- **2005–2019** · Treasury Administration
+- **2000–2001** · Pexim
+- **2000–2002** · Elektrika
+- Occasional freelance work throughout
 
 ## Open source
 
 Author and maintainer since 2006:
 
-- [Chocolatey](https://community.chocolatey.org): AU, the automatic package updater, plus the core team packages and 100+ packages of my own
+- [MusicBrainz userscripts](/musicbrainz-userscripts)
+- [1Remote](https://1remote.org) remote manager
+- [Chocolatey](https://community.chocolatey.org): AU, the automatic package updater, plus core team and 100+ community packages
 - PowerShell modules, documentation as source code (mm-docs), Windows image building
-- [MusicBrainz userscripts](/musicbrainz-userscripts) and the [1Remote](https://1remote.org) remote manager
 
 ## Contact
 
-- miodrag AT milic.info
-- [All projects](/projects/), as an interactive notebook
+- miodrag@milic.info
+- miodrag.milic@gmail.com
+- +381 64 8698 162
 
 ## Where else to find me
 
