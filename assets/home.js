@@ -3,8 +3,8 @@ const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).
 const still = matchMedia('(prefers-reduced-motion: reduce)').matches
 
 // milic.life: Game of Life on a 64x16 torus.
-// Default start is MILIĆ plus an R-pentomino and a glider, which keeps it busy for ~1440
-// generations; when it finally repeats, it starts over. The pattern bar loads classics.
+// Default start is <MILIĆ>: the angle brackets keep it busy for ~1040 generations;
+// when it finally repeats, it starts over. The pattern bar loads classics.
 ;(() => {
   const cv = document.querySelector('#life canvas')
   if (!cv) return
@@ -21,7 +21,8 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
     return out
   }
   const P = {
-    'milić': () => [...name(), [['.##', '##.', '.#.'], 2, 1], [['.#.', '#..', '###'], 55, 5]],
+    'milić': () => [...name(), [['...#', '..#.', '.#..', '#...', '.#..', '..#.', '...#'], 11, 5],      // <MILIĆ>
+                    [['#...', '.#..', '..#.', '...#', '..#.', '.#..', '#...'], 49, 5]],
     'gun': () => [[['........................#', '......................#.#', '............##......##............##', '...........#...#....##............##',
                     '##........#.....#...##', '##........#...#.##....#.#', '..........#.....#.......#', '...........#...#', '............##'], 14, 3]],
     'pulsar': () => { const r = [], q = '..###...###..', s = '#....#.#....#'
