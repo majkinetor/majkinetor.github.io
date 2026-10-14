@@ -9,13 +9,13 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   if (!cv) return
   const F = { M: ['10001', '11011', '10101', '10101', '10001', '10001', '10001'], I: ['111', '010', '010', '010', '010', '010', '111'],
               L: ['100', '100', '100', '100', '100', '100', '111'], C: ['01110', '10001', '10000', '10000', '10000', '10001', '01110'] }
-  const W = 64, H = 20, g = cv.getContext('2d'), gen$ = document.getElementById('gen'), play = document.getElementById('lplay')
+  const W = 64, H = 16, g = cv.getContext('2d'), gen$ = document.getElementById('gen'), play = document.getElementById('lplay')
   let a, gen, seen, timer, running = false
 
   function seed() {
     a = new Uint8Array(W * H); gen = 0; seen = new Map()
     const word = ['M', 'I', 'L', 'I', 'C'], width = word.reduce((s, c) => s + F[c][0].length + 1, -1)
-    let x0 = (W - width) >> 1; const y0 = 7
+    let x0 = (W - width) >> 1; const y0 = 5
     for (const c of word) {
       F[c].forEach((row, y) => [...row].forEach((b, x) => b === '1' && (a[(y0 + y) * W + x0 + x] = 1)))
       x0 += F[c][0].length + 1
