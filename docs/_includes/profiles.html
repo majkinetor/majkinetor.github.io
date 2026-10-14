@@ -1,0 +1,2 @@
+{% for g in site.data.profiles %}<p class="where"><b>{{ g.group }}:</b> {% for l in g.links %}<a rel="me" href="{{ l[1] }}">{{ l[0] }}</a>{% unless forloop.last %} · {% endunless %}{% endfor %}</p>
+{% endfor %}
