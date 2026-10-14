@@ -110,7 +110,7 @@
       "summary": "Online banking for all budget users of Serbia. 24/7, 20M+ payment orders a year, six sub-services.",
       "start": "2019", "end": "2025-12", "live": "2022-01", "client": ["trezor"], "carrier": "nil", "partners": ["oracle"],
       "roles": ["architect", "lead", "dev", "devops", "pm", "analyst"], "tech": ["ASP.NET", "Vue.js", "SQL Server", "GitLab", "Pester", "InfluxDB", "Grafana"],
-      "metrics": ["20M+ orders/year", "24/7", "6 sub-services"], "links": { "site": "https://www.trezor.gov.rs/src/services/epp", "video": "https://video.knowit.rs/videos/watch/playlist/255c1c23-d5f8-4c01-8a9a-9976936fcfaf" }, "featured": true,
+      "metrics": ["20M+ orders/year", "24/7", "6 sub-services"], "links": { "site": "https://www.trezor.gov.rs/src/services/epp", "video": "https://video.knowit.rs/w/p/5BzixgrEhysrvJZn7GsUtR?playlistPosition=1" }, "featured": true,
       "body": "The goal was a stable and fast payment experience, something the two previous incarnations over 20 years did not achieve. Full system design, API design, automatic testing, CI/CD, integrations, team and project management." },
 
     { "id": "ispfi", "title": "ISPFI", "subtitle": "Periodic financial reports",
