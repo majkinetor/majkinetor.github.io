@@ -10,13 +10,13 @@
 
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   const DENSITY = 0.0029 // stars per px², about 6000 on a 1080p screen
-  let w, h, dpr, stars = [], comet = null, sats = [], driftX = 0, driftY = 0
+  let w, h, fw = 0, fh = 0, dpr, stars = [], comet = null, sats = [], driftX = 0, driftY = 0
   let dark = true, ink = '255,255,255', accent = '47,111,214', chart = null
   const rnd = (a, b) => a + Math.random() * (b - a)
 
   function star(s = {}) {
     const r = Math.random()
-    s.x = rnd(0, w); s.y = rnd(0, h)
+    s.x = rnd(0, fw); s.y = rnd(0, fh)
     s.r = r > .99 ? rnd(1, 2.5) : r > .75 ? rnd(.5, 1.3) : rnd(.3, .7)
     s.life = rnd(60, 180); s.age = -rnd(0, 300); s.max = rnd(.6, 1)
     return s
@@ -25,8 +25,8 @@
   // Atlas for the light theme: few stars, mostly faint, and from the brightest
   // a chain to the nearest unused neighbours makes each constellation
   function atlas() {
-    const pts = Array.from({ length: Math.round(w * h / 9000) }, () =>
-      ({ x: rnd(0, w), y: rnd(0, h), r: .6 + Math.random() ** 3 * 2.4 }))
+    const pts = Array.from({ length: Math.round(fw * fh / 9000) }, () =>
+      ({ x: rnd(0, fw), y: rnd(0, fh), r: .6 + Math.random() ** 3 * 2.4 }))
     const lines = [], used = new Set()
     for (const seed of pts.filter(s => s.r > 1.6).slice(0, Math.max(4, pts.length / 12 | 0))) {
       if (used.has(seed)) continue
@@ -47,7 +47,11 @@
   function resize() {
     dpr = devicePixelRatio || 1; w = innerWidth; h = innerHeight
     cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-    const n = Math.min(8000, Math.round(w * h * DENSITY))
+    // The sky is a field as tall as the screen, so the mobile address bar showing
+    // and hiding (a height change on every scroll reversal) doesn't rebuild it
+    if (w === fw && h <= fh) return
+    fw = w; fh = Math.max(h, screen.height || 0)
+    const n = Math.min(8000, Math.round(fw * fh * DENSITY))
     stars.length = Math.min(stars.length, n)
     while (stars.length < n) stars.push(star())
     chart = atlas()
@@ -79,14 +83,14 @@
   const off = (o, pad) => o.x < -pad || o.x > w + pad || o.y < -pad || o.y > h + pad
 
   function drawAtlas() {
-    const ox = driftX % w, oy = driftY % h
+    const ox = driftX % fw, oy = driftY % fh
     ctx.strokeStyle = `rgba(${ink},.15)`; ctx.lineWidth = 1; ctx.setLineDash([2, 5])
     ctx.beginPath()
     for (let x = ox % 120; x < w; x += 120) { ctx.moveTo(x, 0); ctx.lineTo(x, h) }
     for (let y = oy % 120; y < h; y += 120) { ctx.moveTo(0, y); ctx.lineTo(w, y) }
     ctx.stroke(); ctx.setLineDash([])
-    // The sky is one screen-sized tile; draw it four times so it wraps as it drifts
-    for (const [tx, ty] of [[ox, oy], [ox - w, oy], [ox, oy - h], [ox - w, oy - h]]) {
+    // The sky is one tile; draw it four times so it wraps as it drifts
+    for (const [tx, ty] of [[ox, oy], [ox - fw, oy], [ox, oy - fh], [ox - fw, oy - fh]]) {
       ctx.strokeStyle = `rgba(${accent},.35)`; ctx.lineWidth = .8; ctx.beginPath()
       for (const [a, b] of chart.lines) { ctx.moveTo(a.x + tx, a.y + ty); ctx.lineTo(b.x + tx, b.y + ty) }
       ctx.stroke()
@@ -107,7 +111,8 @@
       if (!still && ++s.age > s.life) star(s)
       const o = still ? s.max : glow(s)
       if (o < .05) continue
-      const x = ((s.x + driftX) % w + w) % w, y = ((s.y + driftY) % h + h) % h
+      const x = (s.x + driftX) % fw, y = (s.y + driftY) % fh
+      if (y > h) continue
       const r = s.r * (.5 + .5 * o / s.max)
       const p = paths[Math.min(B - 1, o * B | 0)]
       p.moveTo(x + r, y); p.arc(x, y, r, 0, 7)
