@@ -1,7 +1,7 @@
 // stars.js - the sky behind the page. Dark theme: drifting, twinkling stars with
 // an occasional comet and blinking satellite. Light theme: a printed star atlas,
-// grey stars sized by magnitude, constellation lines and a coordinate grid, kept
-// out of the text column. Both drift slowly; still under reduced motion.
+// grey stars sized by magnitude, constellation lines and a coordinate grid.
+// Both drift slowly; still under reduced motion.
 (() => {
   const cv = document.createElement('canvas'), ctx = cv.getContext('2d')
   cv.setAttribute('aria-hidden', 'true')
@@ -28,7 +28,7 @@
     const pts = Array.from({ length: Math.round(w * h / 9000) }, () =>
       ({ x: rnd(0, w), y: rnd(0, h), r: .6 + Math.random() ** 3 * 2.4 }))
     const lines = [], used = new Set()
-    for (const seed of pts.filter(s => s.r > 1.6).slice(0, Math.max(4, pts.length / 30 | 0))) {
+    for (const seed of pts.filter(s => s.r > 1.6).slice(0, Math.max(4, pts.length / 12 | 0))) {
       if (used.has(seed)) continue
       let cur = seed; used.add(cur)
       for (let k = 3 + Math.random() * 4 | 0; k > 0; k--) {
@@ -79,33 +79,21 @@
   const off = (o, pad) => o.x < -pad || o.x > w + pad || o.y < -pad || o.y > h + pad
 
   function drawAtlas() {
-    const narrow = w < 760, ox = driftX % w, oy = driftY % h
-    ctx.strokeStyle = `rgba(${ink},.09)`; ctx.lineWidth = 1; ctx.setLineDash([2, 5])
+    const ox = driftX % w, oy = driftY % h
+    ctx.strokeStyle = `rgba(${ink},.15)`; ctx.lineWidth = 1; ctx.setLineDash([2, 5])
     ctx.beginPath()
     for (let x = ox % 120; x < w; x += 120) { ctx.moveTo(x, 0); ctx.lineTo(x, h) }
     for (let y = oy % 120; y < h; y += 120) { ctx.moveTo(0, y); ctx.lineTo(w, y) }
     ctx.stroke(); ctx.setLineDash([])
     // The sky is one screen-sized tile; draw it four times so it wraps as it drifts
     for (const [tx, ty] of [[ox, oy], [ox - w, oy], [ox, oy - h], [ox - w, oy - h]]) {
-      if (!narrow) {
-        ctx.strokeStyle = `rgba(${accent},.35)`; ctx.lineWidth = .8; ctx.beginPath()
-        for (const [a, b] of chart.lines) { ctx.moveTo(a.x + tx, a.y + ty); ctx.lineTo(b.x + tx, b.y + ty) }
-        ctx.stroke()
-      }
+      ctx.strokeStyle = `rgba(${accent},.35)`; ctx.lineWidth = .8; ctx.beginPath()
+      for (const [a, b] of chart.lines) { ctx.moveTo(a.x + tx, a.y + ty); ctx.lineTo(b.x + tx, b.y + ty) }
+      ctx.stroke()
       ctx.fillStyle = `rgba(${ink},.45)`; ctx.beginPath()
       for (const s of chart.pts) { ctx.moveTo(s.x + tx + s.r, s.y + ty); ctx.arc(s.x + tx, s.y + ty, s.r, 0, 7) }
       ctx.fill()
     }
-    // Clear the text column: fully on wide screens, mostly on phones
-    const m = document.querySelector('main').getBoundingClientRect()
-    const l = Math.max(0, m.left), r = Math.min(w, m.right), edge = 48
-    const g = ctx.createLinearGradient(l - edge, 0, r + edge, 0), k = narrow ? .8 : 1
-    const f = edge / (r - l + 2 * edge)
-    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(f, `rgba(0,0,0,${k})`)
-    g.addColorStop(1 - f, `rgba(0,0,0,${k})`); g.addColorStop(1, 'rgba(0,0,0,0)')
-    ctx.globalCompositeOperation = 'destination-out'
-    ctx.fillStyle = g; ctx.fillRect(l - edge, 0, r - l + 2 * edge, h)
-    ctx.globalCompositeOperation = 'source-over'
   }
 
   function frame() {
