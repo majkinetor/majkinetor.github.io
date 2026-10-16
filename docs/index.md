@@ -12,7 +12,7 @@ milic.whoami
 - **:since** 2000
 - **:city** "Belgrade"
 - **:country** "Serbia"
-- **:likes** ["automation", "open source", "24/7 services"]
+- **:likes** ["automation", "open source", "AI", "24/7 services"]
 
 ```
 milic.links
