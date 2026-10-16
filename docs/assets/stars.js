@@ -1,6 +1,7 @@
-// stars.js - drifting, twinkling starfield behind the page, with an occasional
-// comet and blinking satellite. Stars take the page ink color, so they read as
-// white in dark mode and as faint dust in light mode. Stills under reduced motion.
+// stars.js - the sky behind the page. Dark theme: drifting, twinkling stars with
+// an occasional comet and blinking satellite. Light theme: a printed star atlas,
+// grey stars sized by magnitude, constellation lines and a coordinate grid, kept
+// out of the text column. Both drift slowly; still under reduced motion.
 (() => {
   const cv = document.createElement('canvas'), ctx = cv.getContext('2d')
   cv.setAttribute('aria-hidden', 'true')
@@ -9,7 +10,8 @@
 
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   const DENSITY = 0.0029 // stars per px², about 6000 on a 1080p screen
-  let w, h, dpr, stars = [], comet = null, sats = [], driftX = 0, driftY = 0, ink = '255,255,255', alpha = 1
+  let w, h, dpr, stars = [], comet = null, sats = [], driftX = 0, driftY = 0
+  let dark = true, ink = '255,255,255', accent = '47,111,214', chart = null
   const rnd = (a, b) => a + Math.random() * (b - a)
 
   function star(s = {}) {
@@ -20,18 +22,45 @@
     return s
   }
 
+  // Atlas for the light theme: few stars, mostly faint, and from the brightest
+  // a chain to the nearest unused neighbours makes each constellation
+  function atlas() {
+    const pts = Array.from({ length: Math.round(w * h / 9000) }, () =>
+      ({ x: rnd(0, w), y: rnd(0, h), r: .6 + Math.random() ** 3 * 2.4 }))
+    const lines = [], used = new Set()
+    for (const seed of pts.filter(s => s.r > 1.6).slice(0, Math.max(4, pts.length / 30 | 0))) {
+      if (used.has(seed)) continue
+      let cur = seed; used.add(cur)
+      for (let k = 3 + Math.random() * 4 | 0; k > 0; k--) {
+        let best = null, bd = 160 * 160
+        for (const s of pts) {
+          const d = (s.x - cur.x) ** 2 + (s.y - cur.y) ** 2
+          if (!used.has(s) && d < bd && d > 900) { bd = d; best = s }
+        }
+        if (!best) break
+        lines.push([cur, best]); used.add(best); cur = best
+      }
+    }
+    return { pts, lines }
+  }
+
   function resize() {
     dpr = devicePixelRatio || 1; w = innerWidth; h = innerHeight
     cv.width = w * dpr; cv.height = h * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     const n = Math.min(8000, Math.round(w * h * DENSITY))
     stars.length = Math.min(stars.length, n)
     while (stars.length < n) stars.push(star())
+    chart = atlas()
   }
 
+  const rgb = v => (v.match(/\d+/g) || []).slice(0, 3).join(',')
   function theme() {
-    const c = getComputedStyle(document.body).color.match(/\d+/g) || [255, 255, 255]
-    ink = c.slice(0, 3).join(',')
-    alpha = (c[0] * .3 + c[1] * .6 + c[2] * .1) > 128 ? 1 : .35 // light ink = dark page
+    const css = getComputedStyle(document.body)
+    ink = rgb(css.color) || ink
+    const [r, g, b] = ink.split(',').map(Number)
+    dark = r * .3 + g * .6 + b * .1 > 128 // light ink = dark page
+    const a = css.getPropertyValue('--accent').trim().match(/^#(..)(..)(..)$/)
+    if (a) accent = a.slice(1).map(x => parseInt(x, 16)).join(',')
   }
 
   // Opacity over a star's life: fade in, hold, fade out, then respawn elsewhere
@@ -49,9 +78,40 @@
   }
   const off = (o, pad) => o.x < -pad || o.x > w + pad || o.y < -pad || o.y > h + pad
 
+  function drawAtlas() {
+    const narrow = w < 760, ox = driftX % w, oy = driftY % h
+    ctx.strokeStyle = `rgba(${ink},.09)`; ctx.lineWidth = 1; ctx.setLineDash([2, 5])
+    ctx.beginPath()
+    for (let x = ox % 120; x < w; x += 120) { ctx.moveTo(x, 0); ctx.lineTo(x, h) }
+    for (let y = oy % 120; y < h; y += 120) { ctx.moveTo(0, y); ctx.lineTo(w, y) }
+    ctx.stroke(); ctx.setLineDash([])
+    // The sky is one screen-sized tile; draw it four times so it wraps as it drifts
+    for (const [tx, ty] of [[ox, oy], [ox - w, oy], [ox, oy - h], [ox - w, oy - h]]) {
+      if (!narrow) {
+        ctx.strokeStyle = `rgba(${accent},.35)`; ctx.lineWidth = .8; ctx.beginPath()
+        for (const [a, b] of chart.lines) { ctx.moveTo(a.x + tx, a.y + ty); ctx.lineTo(b.x + tx, b.y + ty) }
+        ctx.stroke()
+      }
+      ctx.fillStyle = `rgba(${ink},.45)`; ctx.beginPath()
+      for (const s of chart.pts) { ctx.moveTo(s.x + tx + s.r, s.y + ty); ctx.arc(s.x + tx, s.y + ty, s.r, 0, 7) }
+      ctx.fill()
+    }
+    // Clear the text column: fully on wide screens, mostly on phones
+    const m = document.querySelector('main').getBoundingClientRect()
+    const l = Math.max(0, m.left), r = Math.min(w, m.right), edge = 48
+    const g = ctx.createLinearGradient(l - edge, 0, r + edge, 0), k = narrow ? .8 : 1
+    const f = edge / (r - l + 2 * edge)
+    g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(f, `rgba(0,0,0,${k})`)
+    g.addColorStop(1 - f, `rgba(0,0,0,${k})`); g.addColorStop(1, 'rgba(0,0,0,0)')
+    ctx.globalCompositeOperation = 'destination-out'
+    ctx.fillStyle = g; ctx.fillRect(l - edge, 0, r - l + 2 * edge, h)
+    ctx.globalCompositeOperation = 'source-over'
+  }
+
   function frame() {
     ctx.clearRect(0, 0, w, h)
-    driftX += .2; driftY += .08
+    if (!still) { driftX += .2; driftY += .08 }
+    if (!dark) return drawAtlas()
 
     // Bucket stars by opacity so 6000 stars cost ~20 fills
     const B = 20, paths = Array.from({ length: B }, () => new Path2D())
@@ -64,7 +124,7 @@
       const p = paths[Math.min(B - 1, o * B | 0)]
       p.moveTo(x + r, y); p.arc(x, y, r, 0, 7)
     }
-    paths.forEach((p, i) => { ctx.fillStyle = `rgba(${ink},${(i + .5) / B * alpha})`; ctx.fill(p) })
+    paths.forEach((p, i) => { ctx.fillStyle = `rgba(${ink},${(i + .5) / B})`; ctx.fill(p) })
     if (still) return
 
     if (!comet && Math.random() < 1 / 1350) {
@@ -77,10 +137,10 @@
       c.x += c.vx; c.y += c.vy; c.tail.push([c.x, c.y]); if (c.tail.length > 60) c.tail.shift()
       c.tail.forEach(([x, y], i) => {
         const p = i / c.tail.length
-        ctx.fillStyle = `rgba(${ink},${p * .6 * c.b * alpha})`
+        ctx.fillStyle = `rgba(${ink},${p * .6 * c.b})`
         ctx.beginPath(); ctx.arc(x, y, c.r * p * .5, 0, 7); ctx.fill()
       })
-      ctx.fillStyle = `rgba(${ink},${c.b * .8 * alpha})`
+      ctx.fillStyle = `rgba(${ink},${c.b * .8})`
       ctx.beginPath(); ctx.arc(c.x, c.y, c.r * .6, 0, 7); ctx.fill()
       if (off(c, 100)) comet = null
     }
@@ -93,7 +153,7 @@
     sats = sats.filter(s => {
       s.x += s.vx; s.y += s.vy; s.t++
       const on = !s.blink || (s.t / s.every | 0) % 2 === 0
-      ctx.fillStyle = s.red ? `rgba(255,40,40,${on ? 1 : .1})` : `rgba(${ink},${(on ? .9 : .1) * alpha})`
+      ctx.fillStyle = s.red ? `rgba(255,40,40,${on ? 1 : .1})` : `rgba(${ink},${on ? .9 : .1})`
       ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 7); ctx.fill()
       return !off(s, 20)
     })

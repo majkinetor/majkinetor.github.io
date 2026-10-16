@@ -32,7 +32,7 @@ address given in `permalink:` (for example `permalink: /name/`).
 - `docs/assets/site.css`: styles for the Markdown pages
 - `docs/theme.js`: light/dark switch, used by every page
 - `docs/assets/home.js`: the live cells on the home page (Game of Life, sparkline)
-- `docs/assets/stars.js`: the starfield behind the home page
+- `docs/assets/stars.js`: the sky behind the home page (dark: starfield, light: star atlas)
 - `docs/projects/`: the projects notebook, plain HTML over `projects.json`
 
 ## Edit projects
