@@ -23,11 +23,9 @@ milic.links
 - **:musicbrainz** [/musicbrainz-userscripts](/musicbrainz-userscripts)
 - **:github** [majkinetor](https://github.com/majkinetor)
 
-```
-milic.life
-```
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>milic.life</code><span class="tabs" id="lifetabs" role="tablist" aria-label="Kind of life"><button type="button" role="tab" id="t-conway" data-m="conway" aria-selected="true" aria-controls="life">:conway</button><button type="button" role="tab" id="t-lenia" data-m="lenia" aria-selected="false" aria-controls="life" tabindex="-1">:lenia</button></span></pre></div></div>
 
-<div class="out" id="life"><canvas aria-label="Game of Life seeded with the letters MILIĆ"></canvas><div class="bar"><span class="k">:generation =&gt;</span> <span id="gen">0</span><span class="ctl"><button type="button" id="lplay">play</button><button type="button" id="lstep">step</button><button type="button" id="lreset">reset</button></span></div><div class="bar"><span class="k">:pattern =&gt;</span><span class="ctl pat"><button type="button" data-p="milić">milić</button><button type="button" data-p="gun">gun</button><button type="button" data-p="pulsar">pulsar</button><button type="button" data-p="pentadecathlon">pentadecathlon</button><button type="button" data-p="spaceships">spaceships</button><button type="button" data-p="acorn">acorn</button><button type="button" data-p="soup">soup</button></span></div><div class="hint">click or drag to draw cells</div></div>
+<div class="out" id="life" role="tabpanel" aria-labelledby="t-conway"><canvas aria-label="Game of Life seeded with the letters MILIĆ"></canvas><div class="bar"><span class="k" id="clock">:generation =&gt;</span> <span id="gen">0</span><span class="ctl"><button type="button" id="lplay">play</button><button type="button" id="lstep">step</button><button type="button" id="lreset">reset</button></span></div><div class="bar"><span class="k">:pattern =&gt;</span><span class="ctl pat" id="pats"></span></div><div class="hint" id="hint">click or drag to draw cells</div></div>
 
 ```
 projects.sparkline
