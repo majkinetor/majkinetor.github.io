@@ -253,7 +253,7 @@ const still = matchMedia('(prefers-reduced-motion: reduce)').matches
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw)
 
   let saved = null; try { saved = localStorage.getItem('life') } catch {}
-  show(modes[saved] ? saved : 'conway', true)
+  show(modes[saved] ? saved : 'lenia', true)
 })()
 
 // projects.sparkline: projects running in each year, from projects.json.
