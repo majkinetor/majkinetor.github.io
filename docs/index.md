@@ -23,9 +23,11 @@ milic.links
 - **:musicbrainz** [/musicbrainz-userscripts](/musicbrainz-userscripts)
 - **:github** [majkinetor](https://github.com/majkinetor)
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>milic.life</code><span class="tabs" id="lifetabs" role="tablist" aria-label="Kind of life"><button type="button" role="tab" id="t-conway" data-m="conway" aria-selected="false" aria-controls="life" tabindex="-1">:conway</button><button type="button" role="tab" id="t-lenia" data-m="lenia" aria-selected="true" aria-controls="life">:lenia</button></span></pre></div></div>
+```
+milic.life
+```
 
-<div class="out" id="life" role="tabpanel" aria-labelledby="t-lenia"><canvas aria-label="Lenia, a continuous Game of Life: the letters MILIĆ melt and Orbium creatures swim out"></canvas><div class="bar"><span class="k" id="clock">:t =&gt;</span> <span id="gen">0</span><span class="ctl"><button type="button" id="lplay">play</button><button type="button" id="lstep">step</button><button type="button" id="lreset">reset</button></span></div><div class="bar"><span class="k">:pattern =&gt;</span><span class="ctl pat" id="pats"></span></div><div class="hint" id="hint">click or drag to seed living matter</div></div>
+<div class="out" id="life"><canvas aria-label="Lenia, a continuous Game of Life: the letters MILIĆ melt and Orbium creatures swim out"></canvas><div class="bar"><span class="k" id="clock">:t =&gt;</span> <span id="gen">0</span><span class="ctl"><button type="button" id="lplay">play</button><button type="button" id="lstep">step</button><button type="button" id="lreset">reset</button></span></div><div class="bar"><span class="k">:pattern =&gt;</span><span class="ctl pat" id="pats"></span></div><div class="hint" id="hint">click or drag to seed living matter</div></div>
 
 ```
 projects.sparkline
